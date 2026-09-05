@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  serverExternalPackages: ["pdfjs-dist", "canvas", "pdf-parse"],
   images: {
     remotePatterns: [
       {

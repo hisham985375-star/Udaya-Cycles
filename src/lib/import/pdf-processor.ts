@@ -454,16 +454,16 @@ async function renderPDFPageToImage(
 // ──────────────────────────────────────────────────────────────
 export function getImportUploadDir(): string {
   const uploadDir = process.env.IMPORT_UPLOAD_DIR || path.join(process.cwd(), "tmp", "imports");
-  if (!fs.existsSync(uploadDir)) {
+  try {
     fs.mkdirSync(uploadDir, { recursive: true });
-  }
+  } catch {}
   return uploadDir;
 }
 
 export function getImagesDir(): string {
   const imagesDir = path.join(process.cwd(), "tmp", "import-images");
-  if (!fs.existsSync(imagesDir)) {
+  try {
     fs.mkdirSync(imagesDir, { recursive: true });
-  }
+  } catch {}
   return imagesDir;
 }
