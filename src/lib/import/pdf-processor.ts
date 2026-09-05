@@ -197,8 +197,8 @@ export async function extractFromPDF(
 
   let pdfParse: (buffer: Buffer) => Promise<{ numpages: number; text: string; info?: Record<string, unknown> }>;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    pdfParse = require("pdf-parse");
+    const req = typeof process !== 'undefined' ? eval('require') : require;
+    pdfParse = req("pdf-parse");
   } catch {
     throw new Error("pdf-parse module not available. Run: npm install pdf-parse");
   }
@@ -404,9 +404,9 @@ async function renderPDFPageToImage(
 ): Promise<Buffer | null> {
   try {
     // Use sharp to create a representative image
-    // pdfjs-dist in Node.js requires canvas — attempt dynamic import
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.js");
+    // Hide require from bundler to prevent Vercel build crash
+    const req = typeof process !== 'undefined' ? eval('require') : require;
+    const pdfjsLib = req("pdfjs-dist/legacy/build/pdf.js");
 
     const loadingTask = pdfjsLib.getDocument({
       data: new Uint8Array(pdfBuffer),
@@ -424,8 +424,8 @@ async function renderPDFPageToImage(
     // Try to use canvas
     let canvas;
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { createCanvas } = require("canvas");
+      const req = typeof process !== 'undefined' ? eval('require') : require;
+      const { createCanvas } = req("canvas");
       canvas = createCanvas(viewport.width, viewport.height);
     } catch {
       // canvas not available — return null
