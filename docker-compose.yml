@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  udaya-cycles-web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: udaya_cycles_web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/udaya_cycles
+      # Include other env vars here or via env_file
+      # - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      # - NEXTAUTH_URL=${NEXTAUTH_URL}
+      # - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - mongo
+    networks:
+      - udaya_net
+
+  mongo:
+    image: mongo:6.0
+    container_name: udaya_cycles_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - udaya_net
+
+networks:
+  udaya_net:
+    driver: bridge
+
+volumes:
+  mongo_data:
