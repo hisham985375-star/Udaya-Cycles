@@ -167,7 +167,7 @@ export async function POST(request: Request) {
       // Save to disk
       const safeFilename = `${job._id}-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`;
       const filePath = path.join(uploadDir, safeFilename);
-      await writeFile(filePath, buffer);
+      await writeFile(/*turbopackIgnore: true*/ filePath, buffer);
 
       const assignment = fileAssignments[file.name] || {};
       const importFile = await ImportFile.create({

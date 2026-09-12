@@ -204,11 +204,11 @@ export async function extractFromPDF(
     throw new Error("pdf-parse module not available. Run: npm install pdf-parse");
   }
 
-  if (!fs.existsSync(filePath)) {
+  if (!fs.existsSync(/*turbopackIgnore: true*/ filePath)) {
     throw new Error(`PDF file not found: ${filePath}`);
   }
 
-  const fileBuffer = fs.readFileSync(filePath);
+  const fileBuffer = fs.readFileSync(/*turbopackIgnore: true*/ filePath);
 
   // Validate it's a PDF
   const header = fileBuffer.slice(0, 5).toString("ascii");
@@ -456,7 +456,7 @@ async function renderPDFPageToImage(
 export function getImportUploadDir(): string {
   const uploadDir = process.env.IMPORT_UPLOAD_DIR || path.join(process.cwd(), "tmp", "imports");
   try {
-    fs.mkdirSync(uploadDir, { recursive: true });
+    fs.mkdirSync(/*turbopackIgnore: true*/ uploadDir, { recursive: true });
   } catch {}
   return uploadDir;
 }
@@ -464,7 +464,7 @@ export function getImportUploadDir(): string {
 export function getImagesDir(): string {
   const imagesDir = path.join(process.cwd(), "tmp", "import-images");
   try {
-    fs.mkdirSync(imagesDir, { recursive: true });
+    fs.mkdirSync(/*turbopackIgnore: true*/ imagesDir, { recursive: true });
   } catch {}
   return imagesDir;
 }

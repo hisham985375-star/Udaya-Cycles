@@ -366,7 +366,7 @@ async function processProductImage(
   // Save original image
   const originalFilename = `${jobId}-${productIndex}-original.png`;
   const originalPath = path.join(imagesDir, originalFilename);
-  fs.writeFileSync(originalPath, imageBuffer);
+  fs.writeFileSync(/*turbopackIgnore: true*/ originalPath, imageBuffer);
 
   let processedBuffer = imageBuffer;
   let processedPath = originalPath;
@@ -382,7 +382,7 @@ async function processProductImage(
 
       const processedFilename = `${jobId}-${productIndex}-processed.png`;
       processedPath = path.join(imagesDir, processedFilename);
-      fs.writeFileSync(processedPath, processedBuffer);
+      fs.writeFileSync(/*turbopackIgnore: true*/ processedPath, processedBuffer);
     } catch (bgErr) {
       console.warn(`[IMG_PROC] Background removal failed:`, bgErr);
       qualityIssues.push("background_removal_failed");
