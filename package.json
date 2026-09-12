@@ -39,6 +39,7 @@
     "react-dom": "19.2.8",
     "react-hot-toast": "^2.6.0",
     "react-markdown": "^10.1.0",
+    "server-only": "^0.0.1",
     "sharp": "^0.33.5",
     "slugify": "^1.6.9",
     "zod": "^3.25.76",

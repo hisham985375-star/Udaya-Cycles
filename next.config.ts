@@ -2,13 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
-  serverExternalPackages: ["pdfjs-dist", "canvas", "pdf-parse"],
+  serverExternalPackages: ["pdf-parse"],
   images: {
     remotePatterns: [
       {

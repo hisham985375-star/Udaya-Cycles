@@ -9,6 +9,7 @@
  * 5. Return structured ProductCandidate[] for further processing
  */
 
+import "server-only";
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
