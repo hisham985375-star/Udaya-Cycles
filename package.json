@@ -26,6 +26,7 @@
     "date-fns": "^4.4.0",
     "dotenv": "^17.4.2",
     "gsap": "^3.15.0",
+    "jose": "^6.2.12",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.447.0",
     "mongoose": "^8.24.4",
