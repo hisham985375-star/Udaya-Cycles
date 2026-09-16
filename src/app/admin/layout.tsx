@@ -52,7 +52,6 @@ export default function AdminLayout({
       children: [
         { name: "All Products", href: "/admin/products", icon: Package },
         { name: "Create Product", href: "/admin/products/new", icon: Package },
-        { name: "Bulk Import", href: "/admin/products/bulk-import", icon: Upload },
       ],
     },
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
