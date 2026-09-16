@@ -236,38 +236,51 @@ export async function extractFromPDF(
   // pdf-parse returns all text; we'll try to detect product sections using heuristics
   const textSections = splitIntoProductSections(fullText, numpages);
 
+  // Load the PDF once for image rendering to avoid O(N) parsing
+  let pdfDoc: any = null;
+  try {
+    const req = typeof process !== 'undefined' ? eval('require') : require;
+    const pdfjsLib = req("pdfjs-dist/legacy/build/pdf.js");
+    const loadingTask = pdfjsLib.getDocument({
+      data: new Uint8Array(fileBuffer),
+      disableFontFace: true,
+      verbosity: 0,
+    });
+    pdfDoc = await loadingTask.promise;
+  } catch (err) {
+    console.warn("Failed to load PDF for image extraction:", err);
+  }
+
   for (let i = 0; i < textSections.length; i++) {
     const section = textSections[i];
     if (section === undefined) continue;
     
     const pageNum = Math.floor((i / textSections.length) * numpages) + 1;
 
-    // Skip sections that are clearly not products (too short, all headers, etc.)
     if (section.trim().length < 30) continue;
 
-    // Extract product info from this section
     const { name, confidence: nameConf } = extractProductName(section);
     const sizeResult = { size: null, confidence: 0 };
     const rawPrice = null;
     const specs: { label: string; value: string }[] = [];
     const desc = null;
 
-    // Try to extract/render image for this section
     let imageBuffer: Buffer | null = null;
     let imageExtractionMethod: "embedded" | "rendered" | "none" = "none";
     let imageConfidence = 0;
 
-    // Attempt page rendering
-    try {
-      const rendered = await renderPDFPageToImage(fileBuffer, pageNum);
-      if (rendered) {
-        imageBuffer = rendered;
-        imageExtractionMethod = "rendered";
-        imageConfidence = 60; // Rendered pages are lower confidence (full page, not cropped)
+    if (pdfDoc) {
+      try {
+        const rendered = await renderPDFPageToImage(pdfDoc, pageNum);
+        if (rendered) {
+          imageBuffer = rendered;
+          imageExtractionMethod = "rendered";
+          imageConfidence = 60;
+        }
+      } catch (imgErr) {
+        const errMsg = imgErr instanceof Error ? imgErr.message : String(imgErr);
+        errors.push(`Page ${pageNum}: Image render failed — ${errMsg}`);
       }
-    } catch (imgErr) {
-      const errMsg = imgErr instanceof Error ? imgErr.message : String(imgErr);
-      errors.push(`Page ${pageNum}: Image render failed — ${errMsg}`);
     }
 
     const candidate: ProductCandidate = {
@@ -399,22 +412,10 @@ function splitPageIntoProducts(pageText: string): string[] {
 // PDF Page Rendering using pdfjs-dist
 // ──────────────────────────────────────────────────────────────
 async function renderPDFPageToImage(
-  pdfBuffer: Buffer,
+  pdfDoc: any,
   pageNumber: number
 ): Promise<Buffer | null> {
   try {
-    // Use sharp to create a representative image
-    // Hide require from bundler to prevent Vercel build crash
-    const req = typeof process !== 'undefined' ? eval('require') : require;
-    const pdfjsLib = req("pdfjs-dist/legacy/build/pdf.js");
-
-    const loadingTask = pdfjsLib.getDocument({
-      data: new Uint8Array(pdfBuffer),
-      disableFontFace: true,
-      verbosity: 0,
-    });
-
-    const pdfDoc = await loadingTask.promise;
     const totalPages = pdfDoc.numPages;
     const pageNum = Math.min(pageNumber, totalPages);
 
