@@ -13,7 +13,6 @@ import {
   Tag,
   Layers,
 } from "lucide-react";
-import { startBulkImportAction } from "@/actions/bulk-import.actions";
 
 interface Brand { _id: string; name: string }
 interface Category { _id: string; name: string }
@@ -148,13 +147,22 @@ export function BulkImportClient({ brands, categories }: BulkImportClientProps) 
       }
       formData.append("fileAssignments", JSON.stringify(fileAssignments));
 
-      const res = await startBulkImportAction(formData);
+      const res = await fetch('/api/admin/bulk-import', {
+        method: 'POST',
+        body: formData,
+      });
 
-      if (!res.success) {
-        throw new Error(res.error || "Failed to start import");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server error: ${res.statusText}`);
       }
 
-      router.push(`/admin/products/bulk-import/${res.jobId}`);
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error || "Failed to start import");
+      }
+
+      router.push(`/admin/products/bulk-import/${data.jobId}`);
     } catch (err) {
       setValidationErrors([err instanceof Error ? err.message : "Import failed. Payload might be too large."]);
       setStarting(false);
