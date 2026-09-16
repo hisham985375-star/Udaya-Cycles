@@ -147,7 +147,7 @@ export function BulkImportClient({ brands, categories }: BulkImportClientProps) 
       }
       formData.append("fileAssignments", JSON.stringify(fileAssignments));
 
-      const res = await fetch('/api/admin/bulk-import', {
+      const res = await fetch('/api/admin/bulk-import-legacy', {
         method: 'POST',
         body: formData,
       });
