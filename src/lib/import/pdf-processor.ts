@@ -198,8 +198,7 @@ export async function extractFromPDF(
 
   let pdfParse: (buffer: Buffer) => Promise<{ numpages: number; text: string; info?: Record<string, unknown> }>;
   try {
-    const req = typeof process !== 'undefined' ? eval('require') : require;
-    pdfParse = req("pdf-parse");
+    pdfParse = require("pdf-parse");
   } catch {
     throw new Error("pdf-parse module not available. Run: npm install pdf-parse");
   }
