@@ -3,7 +3,7 @@ import formidable from "formidable";
 import fs from "fs";
 import path from "path";
 import { connectDB } from "@/lib/db/mongoose";
-import { verifyAdminToken } from "@/lib/auth/admin-auth";
+import jwt from "jsonwebtoken";
 import ImportJob from "@/models/ImportJob";
 import ImportFile from "@/models/ImportFile";
 import { getImportUploadDir } from "@/lib/import/pdf-processor";
@@ -43,8 +43,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const adminSession = verifyAdminToken(token);
-    if (!adminSession) {
+    let adminSession;
+    try {
+      adminSession = jwt.verify(token, process.env.ADMIN_JWT_SECRET as string) as any;
+    } catch {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
