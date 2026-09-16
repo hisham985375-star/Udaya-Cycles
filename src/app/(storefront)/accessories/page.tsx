@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+export const dynamic = "force-dynamic";
 import { connectDB } from "@/lib/db/mongoose";
+
 import AccessoryCategory from "@/models/AccessoryCategory";
 import Product from "@/models/Product";
 import Link from "next/link";

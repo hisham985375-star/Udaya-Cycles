@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+export const dynamic = "force-dynamic";
 import { notFound } from "next/navigation";
 import { connectDB } from "@/lib/db/mongoose";
+
 import Category from "@/models/Category";
 import Brand from "@/models/Brand";
 import Product from "@/models/Product";

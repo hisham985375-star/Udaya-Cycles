@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
+export const dynamic = "force-dynamic";
 import { connectDB } from "@/lib/db/mongoose";
+
 import LegalPage from "@/models/LegalPage";
 import ReactMarkdown from "react-markdown";
 import { Metadata } from "next";

@@ -1,4 +1,6 @@
 import { connectDB } from "@/lib/db/mongoose";
+export const dynamic = "force-dynamic";
+
 import HomepageSettings from "@/models/HomepageSettings";
 import { ContactClient } from "@/components/storefront/ContactClient";
 import { Metadata } from "next";
