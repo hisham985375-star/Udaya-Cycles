@@ -247,10 +247,10 @@ export async function extractFromPDF(
 
     // Extract product info from this section
     const { name, confidence: nameConf } = extractProductName(section);
-    const sizeResult = detectSize(section);
-    const rawPrice = extractPrice(section);
-    const specs = extractSpecifications(section);
-    const desc = extractDescription(section, name);
+    const sizeResult = { size: null, confidence: 0 };
+    const rawPrice = null;
+    const specs: { label: string; value: string }[] = [];
+    const desc = null;
 
     // Try to extract/render image for this section
     let imageBuffer: Buffer | null = null;
@@ -424,10 +424,9 @@ async function renderPDFPageToImage(
     // Try to use canvas
     let canvas;
     try {
-      const req = typeof process !== 'undefined' ? eval('require') : require;
-      const { createCanvas } = req("canvas");
+      const { createCanvas } = require("@napi-rs/canvas");
       canvas = createCanvas(viewport.width, viewport.height);
-    } catch {
+    } catch (e) {
       // canvas not available — return null
       console.warn("[PDF_RENDER] canvas package not installed, skipping page render");
       return null;
