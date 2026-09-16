@@ -10,6 +10,7 @@ import { ArrowLeft, Plus, X, UploadCloud, Save, Trash2 } from "lucide-react";
 export function ProductFormClient({ initialData }: { initialData?: any }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [extractingPdf, setExtractingPdf] = useState(false);
   const [metadata, setMetadata] = useState<{categories: any[], brands: any[]}>({ categories: [], brands: [] });
 
   // Basic Details
@@ -76,6 +77,52 @@ export function ProductFormClient({ initialData }: { initialData?: any }) {
       alert("Upload failed: " + error.message);
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const handlePdfExtract = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setExtractingPdf(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/admin/extract-single", {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      if (data.name) setName(data.name);
+      
+      if (data.category) {
+        const cat = metadata.categories.find(c => c.name.toLowerCase() === data.category.toLowerCase());
+        if (cat) setCategory(cat._id);
+      }
+      
+      if (data.brand) {
+        const b = metadata.brands.find(b => b.name.toLowerCase() === data.brand.toLowerCase());
+        if (b) setBrand(b._id);
+      }
+
+      if (data.image) {
+        setImages(prev => [...prev, {
+          url: data.image.url,
+          publicId: data.image.publicId,
+          isDefault: prev.length === 0,
+          sortOrder: prev.length
+        }]);
+      }
+      
+      alert("Extracted successfully! Please review the details.");
+    } catch (error: any) {
+      alert("Extraction failed: " + error.message);
+    } finally {
+      setExtractingPdf(false);
+      e.target.value = '';
     }
   };
 
@@ -216,9 +263,16 @@ export function ProductFormClient({ initialData }: { initialData?: any }) {
           </button>
           <h1 className="text-3xl font-display font-bold text-text-primary uppercase tracking-tight">{initialData ? "Edit Product" : "Create Product"}</h1>
         </div>
-        <button type="submit" disabled={loading} className="bg-accent text-bg font-bold px-6 py-3 rounded-full hover:bg-accent-dim transition-colors flex items-center gap-2 uppercase tracking-wide text-sm disabled:opacity-50">
-          <Save className="w-4 h-4" /> {loading ? "Saving..." : "Save Product"}
-        </button>
+        <div className="flex items-center gap-4">
+          <label className="bg-surface border border-accent/50 text-accent font-bold px-4 py-3 rounded-full hover:bg-accent/10 transition-colors flex items-center gap-2 uppercase tracking-wide text-sm cursor-pointer whitespace-nowrap">
+            <UploadCloud className="w-4 h-4" />
+            {extractingPdf ? "Extracting..." : "Magic Extract (1-Page PDF)"}
+            <input type="file" className="hidden" accept="application/pdf" onChange={handlePdfExtract} disabled={extractingPdf || loading} />
+          </label>
+          <button type="submit" disabled={loading || extractingPdf} className="bg-accent text-bg font-bold px-6 py-3 rounded-full hover:bg-accent-dim transition-colors flex items-center gap-2 uppercase tracking-wide text-sm disabled:opacity-50 whitespace-nowrap">
+            <Save className="w-4 h-4" /> {loading ? "Saving..." : "Save Product"}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
