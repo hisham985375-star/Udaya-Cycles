@@ -1,5 +1,4 @@
 import { connectDB } from "@/lib/db/mongoose";
-export const dynamic = "force-dynamic";
 
 import StoreLocation from "@/models/StoreLocation";
 import { StoreLocatorClient } from "@/components/storefront/StoreLocatorClient";
