@@ -47,6 +47,7 @@ export function ShopByBrandsClient({ brands }: { brands: any[] }) {
                           src={brand.bgImage}
                           alt={brand.label}
                           fill
+                          unoptimized
                           className="object-cover opacity-60 mix-blend-overlay group-hover:opacity-80 transition-opacity"
                         />
                       )}
@@ -58,6 +59,7 @@ export function ShopByBrandsClient({ brands }: { brands: any[] }) {
                             src={brand.logo}
                             alt={`${brand.id} logo`}
                             fill
+                            unoptimized
                             className={brand.fillLogo ? (brand.bgWhite ? 'object-contain p-4' : 'object-cover') : 'object-contain'}
                           />
                         </div>

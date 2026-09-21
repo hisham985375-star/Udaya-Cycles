@@ -54,7 +54,7 @@ export function FeaturedCategoriesClient({ categories }: { categories: any[] }) 
               }
             }
 
-            const safeImageUrl = imageUrl.startsWith('/') ? encodeURI(imageUrl) : imageUrl;
+            const safeImageUrl = imageUrl;
 
             return (
               <Link 
@@ -69,6 +69,7 @@ export function FeaturedCategoriesClient({ categories }: { categories: any[] }) 
                       src={safeImageUrl}
                       alt={category.name}
                       fill
+                      unoptimized
                       className="object-contain"
                     />
                   </div>
