@@ -132,19 +132,11 @@ export function ProductDetailClient({ product, variants }: { product: any, varia
 
       {/* Product Info */}
       <div className="lg:w-1/2">
-        <div className="mb-2 flex items-center gap-2">
-          {product.brand && (
-            <span className="text-sm font-bold uppercase tracking-wider text-text-secondary bg-surface-raised px-3 py-1 rounded-full border border-border">
-              {product.brand.name}
-            </span>
-          )}
-        </div>
-        
-        <h1 className="text-4xl lg:text-5xl font-display font-bold text-text-primary uppercase tracking-tight mb-4">
+        <h1 className="text-4xl lg:text-5xl font-display font-bold text-text-primary uppercase tracking-tight mb-4 mt-2">
           {product.name}
         </h1>
         
-        <div className="flex items-baseline gap-4 mb-6">
+        <div className="flex items-baseline gap-4 mb-4">
           <p className="text-3xl font-mono font-bold text-accent">
             ₹{(finalPrice / 100).toLocaleString('en-IN')}
           </p>
@@ -152,6 +144,24 @@ export function ProductDetailClient({ product, variants }: { product: any, varia
             <p className="text-xl font-mono text-text-muted line-through">
               ₹{(product.regularPrice / 100).toLocaleString('en-IN')}
             </p>
+          )}
+        </div>
+
+        <div className="mb-6 flex items-center gap-2 flex-wrap">
+          {product.brand && (
+            <span className="text-sm font-bold uppercase tracking-wider text-text-secondary bg-surface-raised px-3 py-1 rounded-full border border-border">
+              {product.brand.name}
+            </span>
+          )}
+          {product.category && (
+            <span className="text-sm font-bold uppercase tracking-wider text-text-secondary bg-surface-raised px-3 py-1 rounded-full border border-border">
+              {product.category.name}
+            </span>
+          )}
+          {product.size && (
+            <span className="text-sm font-bold uppercase tracking-wider text-text-secondary bg-surface-raised px-3 py-1 rounded-full border border-border">
+              Size: {product.size}
+            </span>
           )}
         </div>
 

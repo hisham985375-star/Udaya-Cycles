@@ -23,11 +23,10 @@ export interface IImportJob extends Document {
   approvedProducts: number;
   rejectedProducts: number;
   settings: {
-    extractImages: boolean;
-    attemptBackgroundRemoval: boolean;
-    convertToPng: boolean;
-    uploadToCloudinary: boolean;
     defaultProductType: "cycle" | "accessory";
+    regularPrice?: string;
+    salePrice?: string;
+    stockQuantity?: string;
   };
   errorMessage?: string;
   createdAt: Date;
@@ -55,11 +54,10 @@ const ImportJobSchema = new Schema<IImportJob>(
     approvedProducts: { type: Number, default: 0 },
     rejectedProducts: { type: Number, default: 0 },
     settings: {
-      extractImages: { type: Boolean, default: true },
-      attemptBackgroundRemoval: { type: Boolean, default: true },
-      convertToPng: { type: Boolean, default: true },
-      uploadToCloudinary: { type: Boolean, default: true },
       defaultProductType: { type: String, enum: ["cycle", "accessory"], default: "cycle" },
+      regularPrice: { type: String },
+      salePrice: { type: String },
+      stockQuantity: { type: String },
     },
     errorMessage: { type: String },
   },

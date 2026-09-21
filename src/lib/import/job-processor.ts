@@ -16,7 +16,6 @@
 
 import fs from "fs";
 import path from "path";
-import { v2 as cloudinary } from "cloudinary";
 import { connectDB } from "@/lib/db/mongoose";
 import ImportJob from "@/models/ImportJob";
 import ImportFile from "@/models/ImportFile";
@@ -24,18 +23,12 @@ import ImportProduct from "@/models/ImportProduct";
 import Brand from "@/models/Brand";
 import Category from "@/models/Category";
 import CategoryMapping from "@/models/CategoryMapping";
+import Product from "@/models/Product";
 import { extractFromPDF, getImagesDir } from "./pdf-processor";
 import { detectBrand } from "./brand-detector";
 import { detectCategory } from "./category-detector";
-import { removeBackground, createThumbnail } from "./background-removal";
 import type { IBrand } from "@/models/Brand";
 import type { ICategory } from "@/models/Category";
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 // ──────────────────────────────────────────────────────────────
 // Main entry point — called fire-and-forget
@@ -158,11 +151,10 @@ export async function processImportJob(jobId: string): Promise<void> {
 async function processFile(
   importFile: InstanceType<typeof ImportFile>,
   settings: {
-    extractImages: boolean;
-    attemptBackgroundRemoval: boolean;
-    convertToPng: boolean;
-    uploadToCloudinary: boolean;
     defaultProductType: "cycle" | "accessory";
+    regularPrice?: string;
+    salePrice?: string;
+    stockQuantity?: string;
   },
   availableBrands: { _id: string; name: string; slug: string }[],
   availableCategories: { _id: string; name: string; slug: string }[],
@@ -273,31 +265,74 @@ async function processFile(
         }
       }
 
+      // ── Apply Global Defaults ──
+      if (settings.regularPrice) importProduct.extractedRegularPrice = parseInt(settings.regularPrice) * 100;
+      if (settings.salePrice) importProduct.extractedSalePrice = parseInt(settings.salePrice) * 100;
+      if (settings.stockQuantity) importProduct.extractedStockQuantity = parseInt(settings.stockQuantity);
+
+      // ── Generate SKU ──
+      if (!importProduct.extractedSku && importProduct.extractedName) {
+        let skuPrefix = "CYC";
+        if (importProduct.extractedBrand) {
+          const b = availableBrands.find(b => b._id === importProduct.extractedBrand?.toString());
+          if (b) skuPrefix = b.name.substring(0, 3).toUpperCase();
+        }
+        
+        let skuMiddle = importProduct.extractedName.replace(/[^a-zA-Z0-9]/g, "-").toUpperCase();
+        
+        let skuSuffix = "";
+        if (importProduct.extractedSize) {
+          skuSuffix = "-" + importProduct.extractedSize.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+        }
+        
+        // Example: KRS-HASTE-29T-MS
+        let sku = `${skuPrefix}-${skuMiddle}${skuSuffix}`.replace(/-+/g, "-");
+        // Limit length or clean it up if necessary
+        importProduct.extractedSku = sku;
+      }
+
+      // ── Duplicate Checking ──
+      if (importProduct.extractedSku) {
+        const existingProductBySku = await Product.findOne({ sku: importProduct.extractedSku }).select("_id").lean();
+        if (existingProductBySku) {
+          importProduct.isDuplicate = true;
+          importProduct.duplicateOfProductId = existingProductBySku._id as any;
+          importProduct.duplicateReason = "Duplicate SKU";
+        }
+      }
+      
+      if (!importProduct.isDuplicate && importProduct.extractedName && importProduct.extractedBrand && importProduct.extractedSize) {
+        const existingProductByName = await Product.findOne({ 
+          name: importProduct.extractedName,
+          brand: importProduct.extractedBrand,
+          size: importProduct.extractedSize
+        }).select("_id").lean();
+        
+        if (existingProductByName) {
+          importProduct.isDuplicate = true;
+          importProduct.duplicateOfProductId = existingProductByName._id as any;
+          importProduct.duplicateReason = "Duplicate Name, Brand and Size";
+        }
+      }
+
       // ── Image processing ──
-      if (settings.extractImages && candidate.imageBuffer) {
+      if (candidate.imageBuffer) {
         const imageResult = await processProductImage(
           candidate.imageBuffer,
           importFile.importJob.toString(),
           i,
-          settings,
           imagesDir
         );
 
         importProduct.image = {
           originalPath: imageResult.originalPath,
-          processedPath: imageResult.processedPath,
-          cloudinaryPublicId: imageResult.cloudinaryPublicId,
-          cloudinaryUrl: imageResult.cloudinaryUrl,
           width: imageResult.width,
           height: imageResult.height,
           fileSize: imageResult.fileSize,
-          extractionMethod: candidate.imageExtractionMethod as "embedded" | "rendered",
-          qualityIssues: imageResult.qualityIssues,
         };
 
         importProduct.imageConfidence = imageResult.confidence;
-        importProduct.imageNeedsReview =
-          imageResult.qualityIssues.length > 0 || imageResult.confidence < 70;
+        importProduct.imageNeedsReview = false; // We just store the original
       }
 
       // ── Determine final status ──
@@ -306,7 +341,8 @@ async function processFile(
         importProduct.brandNeedsReview ||
         importProduct.categoryNeedsReview ||
         importProduct.sizeNeedsReview ||
-        importProduct.imageNeedsReview;
+        importProduct.imageNeedsReview ||
+        importProduct.isDuplicate;
 
       if (!importProduct.extractedName) {
         importProduct.status = "NEEDS_REVIEW";
@@ -343,119 +379,40 @@ async function processProductImage(
   imageBuffer: Buffer,
   jobId: string,
   productIndex: number,
-  settings: {
-    attemptBackgroundRemoval: boolean;
-    convertToPng: boolean;
-    uploadToCloudinary: boolean;
-  },
   imagesDir: string
 ): Promise<{
   originalPath?: string;
-  processedPath?: string;
-  cloudinaryPublicId?: string;
-  cloudinaryUrl?: string;
   width?: number;
   height?: number;
   fileSize?: number;
-  qualityIssues: string[];
   confidence: number;
 }> {
-  const qualityIssues: string[] = [];
-  let confidence = 70;
+  let confidence = 85;
 
   // Save original image
   const originalFilename = `${jobId}-${productIndex}-original.png`;
   const originalPath = path.join(imagesDir, originalFilename);
   fs.writeFileSync(/*turbopackIgnore: true*/ originalPath, imageBuffer);
 
-  let processedBuffer = imageBuffer;
-  let processedPath = originalPath;
-
-  // Background removal
-  if (settings.attemptBackgroundRemoval) {
-    try {
-      const bgResult = await removeBackground(imageBuffer);
-      processedBuffer = bgResult.buffer;
-      qualityIssues.push(...bgResult.qualityIssues);
-
-      if (bgResult.qualityIssues.length === 0) confidence = 85;
-
-      const processedFilename = `${jobId}-${productIndex}-processed.png`;
-      processedPath = path.join(imagesDir, processedFilename);
-      fs.writeFileSync(/*turbopackIgnore: true*/ processedPath, processedBuffer);
-    } catch (bgErr) {
-      console.warn(`[IMG_PROC] Background removal failed:`, bgErr);
-      qualityIssues.push("background_removal_failed");
-      confidence = 50;
-    }
-  }
-
   // Get image metadata
   let width: number | undefined;
   let height: number | undefined;
   try {
     const sharp = (await import("sharp")).default;
-    const metadata = await sharp(processedBuffer).metadata();
+    const metadata = await sharp(imageBuffer).metadata();
     width = metadata.width;
     height = metadata.height;
-
-    if (width && height) {
-      if (width < 300 || height < 300) {
-        qualityIssues.push("low_resolution");
-        confidence = Math.max(confidence - 15, 30);
-      }
-    }
   } catch {
     // metadata extraction failed
   }
 
-  const fileSize = processedBuffer.length;
-
-  // Cloudinary upload
-  let cloudinaryPublicId: string | undefined;
-  let cloudinaryUrl: string | undefined;
-
-  if (settings.uploadToCloudinary) {
-    try {
-      const uploadResult = await new Promise<{
-        public_id: string;
-        secure_url: string;
-        width: number;
-        height: number;
-      }>((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
-            folder: "udaya-cycles/import",
-            format: "png",
-            resource_type: "image",
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result as { public_id: string; secure_url: string; width: number; height: number });
-          }
-        );
-        uploadStream.end(processedBuffer);
-      });
-
-      cloudinaryPublicId = uploadResult.public_id;
-      cloudinaryUrl = uploadResult.secure_url;
-      width = uploadResult.width;
-      height = uploadResult.height;
-    } catch (cloudErr) {
-      console.error(`[IMG_PROC] Cloudinary upload failed:`, cloudErr);
-      qualityIssues.push("cloudinary_upload_failed");
-    }
-  }
+  const fileSize = imageBuffer.length;
 
   return {
     originalPath,
-    processedPath,
-    cloudinaryPublicId,
-    cloudinaryUrl,
     width,
     height,
     fileSize,
-    qualityIssues,
     confidence,
   };
 }

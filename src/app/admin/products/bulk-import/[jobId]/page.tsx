@@ -2,8 +2,9 @@ import { connectDB } from "@/lib/db/mongoose";
 import Brand from "@/models/Brand";
 import Category from "@/models/Category";
 import ImportJob from "@/models/ImportJob";
+import ImportFile from "@/models/ImportFile";
 import Link from "next/link";
-import { ArrowLeft, Package } from "lucide-react";
+import { ArrowLeft, Package, AlertTriangle, FileText } from "lucide-react";
 import { ImportJobProgress } from "@/components/admin/bulk-import/ImportJobProgress";
 import { ImportProductsTable } from "@/components/admin/bulk-import/ImportProductsTable";
 
@@ -23,6 +24,8 @@ export default async function ImportJobDetailPage({ params }: PageProps) {
     Brand.find({ isActive: true }).select("_id name").sort({ name: 1 }).lean(),
     Category.find({ isActive: true }).select("_id name").sort({ name: 1 }).lean(),
   ]);
+
+  const failedFiles = await ImportFile.find({ importJob: jobId, status: "FAILED" }).lean();
 
   if (!job) {
     return (
@@ -84,6 +87,30 @@ export default async function ImportJobDetailPage({ params }: PageProps) {
       <div className="mb-8">
         <ImportJobProgress jobId={jobId} />
       </div>
+
+      {/* File Level Errors */}
+      {failedFiles && failedFiles.length > 0 && (
+        <div className="mb-8 bg-error/10 border border-error rounded-2xl p-6">
+          <h2 className="text-xl font-bold text-error flex items-center gap-2 mb-4">
+            <AlertTriangle className="w-5 h-5" />
+            File Parsing Failed
+          </h2>
+          <p className="text-sm text-text-secondary mb-4">
+            The following files could not be read. They might be corrupted, heavily encrypted, or structurally invalid. No products could be extracted from these files.
+          </p>
+          <div className="space-y-3">
+            {failedFiles.map((f: any) => (
+              <div key={f._id.toString()} className="bg-surface-overlay border border-border p-4 rounded-xl flex items-start gap-4">
+                <FileText className="w-5 h-5 text-text-muted shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="font-bold text-text-primary text-sm">{f.originalName}</h3>
+                  <p className="text-xs font-mono text-error mt-1">{f.errorMessage}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Product Review Table — only show when processing has started */}
       {["PROCESSING", "COMPLETED", "COMPLETED_WITH_ERRORS", "FAILED"].includes(job.status) && (

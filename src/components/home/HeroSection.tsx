@@ -2,7 +2,7 @@
 
 export function HeroSection() {
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-black">
+    <section className="relative h-[85vh] md:h-screen w-full overflow-hidden bg-black">
       <video
         src="/videos/hero-animation.mp4"
         muted

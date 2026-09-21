@@ -9,6 +9,8 @@ import { useUiStore } from "@/store/uiStore";
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileCategoryOpen, setMobileCategoryOpen] = useState(false);
+  const [mobileBrandOpen, setMobileBrandOpen] = useState(false);
 
   const toggleCart = useCartStore((state) => state.toggleCart);
   const getItemCount = useCartStore((state) => state.getItemCount);
@@ -22,7 +24,11 @@ export function Header() {
 
   const cartCount = mounted ? getItemCount() : 0;
 
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+    setMobileCategoryOpen(false);
+    setMobileBrandOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-[200] w-full bg-black">
@@ -60,8 +66,14 @@ export function Header() {
                 <div className="bg-black flex flex-col py-1.5 w-[190px] shadow-2xl border border-[#1a1a18] border-t-0">
                   <Link href="/cycles/category/mtb-bicycles" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">MTB Cycles</Link>
                   <Link href="/cycles/category/electric-cycles" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Electric Cycles</Link>
-                  <Link href="/cycles/category/kids-bicycles" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Kids Cycles</Link>
-                  <Link href="/cycles/category/girl-s-bicycles" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Girl's Cycles</Link>
+                  <Link href="/cycles/category/kids-3322" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Kids</Link>
+                  <Link href="/cycles/category/ladies-3473" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Ladies</Link>
+                  <Link href="/cycles/category/premium-6058" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Premium</Link>
+                  <Link href="/cycles/category/mountain-3145" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Mountain</Link>
+                  <Link href="/cycles/category/city-3298" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">City</Link>
+                  <Link href="/cycles/category/roadster-3083" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Roadster</Link>
+                  <Link href="/cycles/category/geared-8852" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Geared</Link>
+                  <Link href="/cycles/category/hybrid-2496" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Hybrid</Link>
                 </div>
               </div>
             </div>
@@ -84,6 +96,8 @@ export function Header() {
                   <Link href="/cycles/brand/ninety-one" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Ninety one</Link>
                   <Link href="/cycles/brand/raliegh" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Raliegh</Link>
                   <Link href="/cycles/brand/suncross" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Suncross</Link>
+                  <Link href="/cycles/brand/kross" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Kross</Link>
+                  <Link href="/cycles/brand/british-eagle" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">British Eagle</Link>
                 </div>
               </div>
             </div>
@@ -153,12 +167,53 @@ export function Header() {
             <Link href="/#why-udaya" className="text-lg font-normal p-2 hover:bg-surface rounded-md transition-colors" onClick={toggleMobileMenu}>
               About Us
             </Link>
-            <button className="flex items-center justify-between text-lg font-normal p-2 hover:bg-surface rounded-md transition-colors">
-              Cycles by Category <ChevronDown className="w-5 h-5" />
-            </button>
-            <button className="flex items-center justify-between text-lg font-normal p-2 hover:bg-surface rounded-md transition-colors">
-              Cycles by Brand <ChevronDown className="w-5 h-5" />
-            </button>
+            <div className="flex flex-col">
+              <button 
+                className="flex items-center justify-between text-lg font-normal p-2 hover:bg-surface rounded-md transition-colors w-full"
+                onClick={() => setMobileCategoryOpen(!mobileCategoryOpen)}
+              >
+                Cycles by Category {mobileCategoryOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              </button>
+              {mobileCategoryOpen && (
+                <div className="flex flex-col pl-4 pt-2 space-y-3 pb-2 border-l border-border ml-2 mt-1">
+                  <Link href="/cycles/category/mtb-bicycles" className="text-base text-gray-300" onClick={toggleMobileMenu}>MTB Cycles</Link>
+                  <Link href="/cycles/category/electric-cycles" className="text-base text-gray-300" onClick={toggleMobileMenu}>Electric Cycles</Link>
+                  <Link href="/cycles/category/kids-3322" className="text-base text-gray-300" onClick={toggleMobileMenu}>Kids</Link>
+                  <Link href="/cycles/category/ladies-3473" className="text-base text-gray-300" onClick={toggleMobileMenu}>Ladies</Link>
+                  <Link href="/cycles/category/premium-6058" className="text-base text-gray-300" onClick={toggleMobileMenu}>Premium</Link>
+                  <Link href="/cycles/category/mountain-3145" className="text-base text-gray-300" onClick={toggleMobileMenu}>Mountain</Link>
+                  <Link href="/cycles/category/city-3298" className="text-base text-gray-300" onClick={toggleMobileMenu}>City</Link>
+                  <Link href="/cycles/category/roadster-3083" className="text-base text-gray-300" onClick={toggleMobileMenu}>Roadster</Link>
+                  <Link href="/cycles/category/geared-8852" className="text-base text-gray-300" onClick={toggleMobileMenu}>Geared</Link>
+                  <Link href="/cycles/category/hybrid-2496" className="text-base text-gray-300" onClick={toggleMobileMenu}>Hybrid</Link>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex flex-col">
+              <button 
+                className="flex items-center justify-between text-lg font-normal p-2 hover:bg-surface rounded-md transition-colors w-full"
+                onClick={() => setMobileBrandOpen(!mobileBrandOpen)}
+              >
+                Cycles by Brand {mobileBrandOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              </button>
+              {mobileBrandOpen && (
+                <div className="flex flex-col pl-4 pt-2 space-y-3 pb-2 border-l border-border ml-2 mt-1">
+                  <Link href="/cycles/brand/radiant" className="text-base text-gray-300" onClick={toggleMobileMenu}>Radiant</Link>
+                  <Link href="/cycles/brand/avon" className="text-base text-gray-300" onClick={toggleMobileMenu}>Avon</Link>
+                  <Link href="/cycles/brand/gang" className="text-base text-gray-300" onClick={toggleMobileMenu}>Gang</Link>
+                  <Link href="/cycles/brand/chase" className="text-base text-gray-300" onClick={toggleMobileMenu}>Chase</Link>
+                  <Link href="/cycles/brand/viva" className="text-base text-gray-300" onClick={toggleMobileMenu}>Viva</Link>
+                  <Link href="/cycles/brand/firefox" className="text-base text-gray-300" onClick={toggleMobileMenu}>Firefox</Link>
+                  <Link href="/cycles/brand/emotorad" className="text-base text-gray-300" onClick={toggleMobileMenu}>Emotorad</Link>
+                  <Link href="/cycles/brand/ninety-one" className="text-base text-gray-300" onClick={toggleMobileMenu}>Ninety one</Link>
+                  <Link href="/cycles/brand/raliegh" className="text-base text-gray-300" onClick={toggleMobileMenu}>Raliegh</Link>
+                  <Link href="/cycles/brand/suncross" className="text-base text-gray-300" onClick={toggleMobileMenu}>Suncross</Link>
+                  <Link href="/cycles/brand/kross" className="text-base text-gray-300" onClick={toggleMobileMenu}>Kross</Link>
+                  <Link href="/cycles/brand/british-eagle" className="text-base text-gray-300" onClick={toggleMobileMenu}>British Eagle</Link>
+                </div>
+              )}
+            </div>
             <Link href="/accessories" className="text-lg font-normal p-2 hover:bg-surface rounded-md transition-colors" onClick={toggleMobileMenu}>
               Accessories
             </Link>

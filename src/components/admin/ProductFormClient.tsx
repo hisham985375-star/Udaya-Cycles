@@ -21,7 +21,15 @@ export function ProductFormClient({ initialData }: { initialData?: any }) {
   const [brand, setBrand] = useState(initialData?.brand || "");
   const [description, setDescription] = useState(initialData?.description || "");
   const [size, setSize] = useState(initialData?.size?.toString() || "");
-  
+  const [isCustomSize, setIsCustomSize] = useState(() => {
+    const s = initialData?.size?.toString() || "";
+    return s !== "" && !["12","14","16","20","24","26","27.5","29","700C"].includes(s);
+  });
+  const [isCustomCategory, setIsCustomCategory] = useState(() => {
+    const c = initialData?.category || "";
+    // We will sync this in a useEffect once metadata loads, but assume false initially unless we know otherwise.
+    return false; 
+  });
   // Pricing & Inventory (Base)
   const [regularPrice, setRegularPrice] = useState(initialData ? (initialData.regularPrice / 100).toString() : ""); 
   const [salePrice, setSalePrice] = useState(initialData?.salePrice ? (initialData.salePrice / 100).toString() : "");
@@ -47,7 +55,12 @@ export function ProductFormClient({ initialData }: { initialData?: any }) {
   useEffect(() => {
     fetch("/api/admin/metadata")
       .then(res => res.json())
-      .then(data => setMetadata(data))
+      .then(data => {
+        setMetadata(data);
+        if (category && data.categories && !data.categories.find((c: any) => c._id === category)) {
+          setIsCustomCategory(true);
+        }
+      })
       .catch(console.error);
   }, []);
 
@@ -248,18 +261,48 @@ export function ProductFormClient({ initialData }: { initialData?: any }) {
                 </div>
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">Size</label>
-                  <select value={size} onChange={e => setSize(e.target.value)} className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary focus:border-accent outline-none appearance-none font-mono">
-                    <option value="" className="text-black">Select Size...</option>
-                    <option value="12" className="text-black">12</option>
-                    <option value="14" className="text-black">14</option>
-                    <option value="16" className="text-black">16</option>
-                    <option value="20" className="text-black">20</option>
-                    <option value="24" className="text-black">24</option>
-                    <option value="26" className="text-black">26</option>
-                    <option value="27.5" className="text-black">27.5</option>
-                    <option value="29" className="text-black">29</option>
-                    <option value="700C" className="text-black">700C</option>
-                  </select>
+                  <div className="w-full">
+                    {isCustomSize ? (
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" 
+                          value={size} 
+                          onChange={e => setSize(e.target.value)} 
+                          placeholder="Custom size" 
+                          className="flex-1 min-w-0 bg-bg border border-border rounded-lg p-3 text-text-primary focus:border-accent outline-none font-mono" 
+                          autoFocus
+                        />
+                        <button type="button" onClick={() => { setIsCustomSize(false); setSize(""); }} className="shrink-0 bg-surface border border-border rounded-lg px-3 hover:border-accent text-text-muted hover:text-error transition-colors flex items-center justify-center">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <select 
+                        value={size} 
+                        onChange={e => {
+                          if (e.target.value === "custom") {
+                            setIsCustomSize(true);
+                            setSize("");
+                          } else {
+                            setSize(e.target.value);
+                          }
+                        }} 
+                        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary focus:border-accent outline-none appearance-none font-mono"
+                      >
+                        <option value="" className="text-black">Select Size...</option>
+                        <option value="12" className="text-black">12</option>
+                        <option value="14" className="text-black">14</option>
+                        <option value="16" className="text-black">16</option>
+                        <option value="20" className="text-black">20</option>
+                        <option value="24" className="text-black">24</option>
+                        <option value="26" className="text-black">26</option>
+                        <option value="27.5" className="text-black">27.5</option>
+                        <option value="29" className="text-black">29</option>
+                        <option value="700C" className="text-black">700C</option>
+                        <option value="custom" className="text-black font-bold">Custom...</option>
+                      </select>
+                    )}
+                  </div>
                 </div>
               </div>
               <div>
@@ -397,12 +440,42 @@ export function ProductFormClient({ initialData }: { initialData?: any }) {
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">Category</label>
-                <select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary focus:border-accent outline-none appearance-none">
-                  <option value="" className="text-black">Select Category...</option>
-                  {metadata.categories.map((c: any) => (
-                    <option key={c._id} value={c._id} className="text-black">{c.name}</option>
-                  ))}
-                </select>
+                <div className="w-full">
+                  {isCustomCategory ? (
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        value={category} 
+                        onChange={e => setCategory(e.target.value)} 
+                        placeholder="Custom category" 
+                        className="flex-1 min-w-0 bg-bg border border-border rounded-lg p-3 text-text-primary focus:border-accent outline-none" 
+                        autoFocus
+                      />
+                      <button type="button" onClick={() => { setIsCustomCategory(false); setCategory(""); }} className="shrink-0 bg-surface border border-border rounded-lg px-3 hover:border-accent text-text-muted hover:text-error transition-colors flex items-center justify-center">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <select 
+                      value={category} 
+                      onChange={e => {
+                        if (e.target.value === "custom") {
+                          setIsCustomCategory(true);
+                          setCategory("");
+                        } else {
+                          setCategory(e.target.value);
+                        }
+                      }} 
+                      className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary focus:border-accent outline-none appearance-none"
+                    >
+                      <option value="" className="text-black">Select Category...</option>
+                      {metadata.categories.map((c: any) => (
+                        <option key={c._id} value={c._id} className="text-black">{c.name}</option>
+                      ))}
+                      <option value="custom" className="text-black font-bold">Custom...</option>
+                    </select>
+                  )}
+                </div>
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase tracking-widest text-text-secondary mb-2">Brand</label>

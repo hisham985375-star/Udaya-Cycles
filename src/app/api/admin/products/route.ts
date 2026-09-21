@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db/mongoose";
 import Product from "@/models/Product";
 import ProductVariant from "@/models/ProductVariant";
+import Category from "@/models/Category";
+import mongoose from "mongoose";
 import { getAdminSession } from "@/lib/auth/admin-auth";
 import slugify from "slugify";
 
@@ -102,12 +104,23 @@ export async function POST(request: Request) {
       counter++;
     }
 
+    let finalCategoryId = category;
+    if (category && !mongoose.Types.ObjectId.isValid(category)) {
+      // It's a new category string
+      const catSlug = slugify(category, { lower: true, strict: true });
+      let existingCat = await Category.findOne({ slug: catSlug });
+      if (!existingCat) {
+        existingCat = await Category.create({ name: category, slug: catSlug });
+      }
+      finalCategoryId = existingCat._id;
+    }
+
     const newProduct = new Product({
       name,
       slug,
       sku,
       type,
-      category: category || undefined,
+      category: finalCategoryId || undefined,
       brand: brand || undefined,
       description,
       size: size || undefined,
@@ -145,3 +158,58 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message || "Failed to create product" }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const adminSession = await getAdminSession();
+    if (!adminSession) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get("q") || "";
+    const brandId = searchParams.get("brand");
+    const categoryId = searchParams.get("category");
+    const size = searchParams.get("size");
+    const minPriceStr = searchParams.get("minPrice");
+    const maxPriceStr = searchParams.get("maxPrice");
+
+    await connectDB();
+
+    const query: Record<string, any> = { deletedAt: null };
+    
+    if (search) {
+      query.name = { $regex: search, $options: "i" };
+    }
+    if (brandId) {
+      query.brand = brandId;
+    }
+    if (categoryId) {
+      query.category = categoryId;
+    }
+    if (size) {
+      query.size = size;
+    }
+    
+    if (minPriceStr || maxPriceStr) {
+      query.regularPrice = {};
+      if (minPriceStr) query.regularPrice.$gte = parseInt(minPriceStr) * 100;
+      if (maxPriceStr) query.regularPrice.$lte = parseInt(maxPriceStr) * 100;
+    }
+
+    // Find all products matching the query to delete their variants
+    const productsToDelete = await Product.find(query).select("_id");
+    const productIds = productsToDelete.map((p) => p._id);
+
+    if (productIds.length > 0) {
+      await ProductVariant.deleteMany({ product: { $in: productIds } });
+      await Product.deleteMany(query);
+    }
+
+    return NextResponse.json({ success: true, count: productIds.length });
+  } catch (error) {
+    console.error("[DELETE /api/admin/products]", error);
+    return NextResponse.json({ error: "Failed to bulk delete products" }, { status: 500 });
+  }
+}
+

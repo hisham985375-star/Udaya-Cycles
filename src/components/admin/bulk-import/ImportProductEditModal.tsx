@@ -92,7 +92,7 @@ export function ImportProductEditModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const SIZE_OPTIONS = ["26T", "27.5T", "29T", "24T", "20T", "16T", "700C", "S", "M", "L", "XL"];
+  const SIZE_OPTIONS = ["26", "27.5", "29", "24", "20", "16", "700C", "S", "M", "L", "XL"];
   const STATUS_OPTIONS = ["READY", "NEEDS_REVIEW", "REJECTED"];
 
   const handleSave = async () => {
@@ -199,18 +199,26 @@ export function ImportProductEditModal({
                   <ConfidenceBadge value={product.categoryConfidence} />
                   {product.categoryNeedsReview && <ReviewFlag />}
                 </div>
-                <select
-                  value={form.extractedCategory}
-                  onChange={(e) => setForm({ ...form, extractedCategory: e.target.value })}
-                  className="w-full bg-bg border border-border rounded-lg px-4 py-2.5 text-text-primary focus:border-accent outline-none transition-colors"
-                >
-                  <option value="">— Select Category —</option>
-                  {categories.map((c) => (
-                    <option key={c._id} value={c._id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex gap-2">
+                  <select
+                    value={form.extractedCategory}
+                    onChange={(e) => setForm({ ...form, extractedCategory: e.target.value, extractedCategoryRaw: "" })}
+                    className="flex-1 bg-bg border border-border rounded-lg px-4 py-2.5 text-text-primary focus:border-accent outline-none transition-colors"
+                  >
+                    <option value="">— Select Category —</option>
+                    {categories.map((c) => (
+                      <option key={c._id} value={c._id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    value={form.extractedCategoryRaw}
+                    onChange={(e) => setForm({ ...form, extractedCategoryRaw: e.target.value, extractedCategory: "" })}
+                    placeholder="Custom..."
+                    className="w-32 bg-bg border border-border rounded-lg px-3 py-2.5 text-text-primary focus:border-accent outline-none transition-colors"
+                  />
+                </div>
               </div>
 
               {/* Size */}

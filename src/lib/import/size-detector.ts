@@ -10,20 +10,20 @@ export interface SizeDetectionResult {
 
 // Ordered by specificity (more specific patterns first)
 const WHEEL_SIZE_PATTERNS: { pattern: RegExp; label: string; confidence: number }[] = [
-  { pattern: /\b29["\s]?[Tt](?:yre|ire)?\b/,      label: "29T",   confidence: 95 },
-  { pattern: /\b27\.5["\s]?[Tt](?:yre|ire)?\b/,   label: "27.5T", confidence: 95 },
-  { pattern: /\b26["\s]?[Tt](?:yre|ire)?\b/,       label: "26T",   confidence: 95 },
-  { pattern: /\b24["\s]?[Tt](?:yre|ire)?\b/,       label: "24T",   confidence: 95 },
-  { pattern: /\b20["\s]?[Tt](?:yre|ire)?\b/,       label: "20T",   confidence: 90 },
-  { pattern: /\b16["\s]?[Tt](?:yre|ire)?\b/,       label: "16T",   confidence: 90 },
+  { pattern: /\b29["\s]?[Tt](?:yre|ire)?\b/,      label: "29",   confidence: 95 },
+  { pattern: /\b27\.5["\s]?[Tt](?:yre|ire)?\b/,   label: "27.5", confidence: 95 },
+  { pattern: /\b26["\s]?[Tt](?:yre|ire)?\b/,       label: "26",   confidence: 95 },
+  { pattern: /\b24["\s]?[Tt](?:yre|ire)?\b/,       label: "24",   confidence: 95 },
+  { pattern: /\b20["\s]?[Tt](?:yre|ire)?\b/,       label: "20",   confidence: 90 },
+  { pattern: /\b16["\s]?[Tt](?:yre|ire)?\b/,       label: "16",   confidence: 90 },
   { pattern: /\b700[cC]\b/,                          label: "700C",  confidence: 95 },
-  { pattern: /\b29(?:er|\")\b/i,                    label: "29T",   confidence: 85 },
-  { pattern: /\b27\.5(?:er|\")\b/i,                 label: "27.5T", confidence: 85 },
-  { pattern: /\b26(?:er|\")(?:\s*wheel)?\b/i,       label: "26T",   confidence: 85 },
-  { pattern: /\bwheel[:\s]+?29\b/i,                 label: "29T",   confidence: 80 },
-  { pattern: /\bwheel[:\s]+?27\.5\b/i,              label: "27.5T", confidence: 80 },
-  { pattern: /\bwheel[:\s]+?26\b/i,                 label: "26T",   confidence: 80 },
-  { pattern: /\bwheel[:\s]+?24\b/i,                 label: "24T",   confidence: 80 },
+  { pattern: /\b29(?:er|\")\b/i,                    label: "29",   confidence: 85 },
+  { pattern: /\b27\.5(?:er|\")\b/i,                 label: "27.5", confidence: 85 },
+  { pattern: /\b26(?:er|\")(?:\s*wheel)?\b/i,       label: "26",   confidence: 85 },
+  { pattern: /\bwheel[:\s]+?29\b/i,                 label: "29",   confidence: 80 },
+  { pattern: /\bwheel[:\s]+?27\.5\b/i,              label: "27.5", confidence: 80 },
+  { pattern: /\bwheel[:\s]+?26\b/i,                 label: "26",   confidence: 80 },
+  { pattern: /\bwheel[:\s]+?24\b/i,                 label: "24",   confidence: 80 },
 ];
 
 const FRAME_SIZE_PATTERNS: { pattern: RegExp; label: string; confidence: number }[] = [

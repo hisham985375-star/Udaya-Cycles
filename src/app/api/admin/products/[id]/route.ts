@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db/mongoose";
 import Product from "@/models/Product";
 import ProductVariant from "@/models/ProductVariant";
+import Category from "@/models/Category";
+import mongoose from "mongoose";
 import { getAdminSession } from "@/lib/auth/admin-auth";
 import { logAdminAction } from "@/lib/audit";
 import slugify from "slugify";
@@ -59,10 +61,21 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     
     const originalProduct = product.toObject();
 
+    let finalCategoryId = category;
+    if (category && !mongoose.Types.ObjectId.isValid(category)) {
+      // It's a new category string
+      const catSlug = slugify(category, { lower: true, strict: true });
+      let existingCat = await Category.findOne({ slug: catSlug });
+      if (!existingCat) {
+        existingCat = await Category.create({ name: category, slug: catSlug });
+      }
+      finalCategoryId = existingCat._id;
+    }
+
     product.name = name;
     product.sku = sku;
     product.type = type;
-    product.category = category || undefined;
+    product.category = finalCategoryId || undefined;
     product.brand = brand || undefined;
     product.description = description;
     product.size = size || undefined;

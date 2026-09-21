@@ -17,9 +17,10 @@ interface Category {
 interface AdminProductFiltersProps {
   brands: Brand[];
   categories: Category[];
+  children?: React.ReactNode;
 }
 
-export function AdminProductFilters({ brands, categories }: AdminProductFiltersProps) {
+export function AdminProductFilters({ brands, categories, children }: AdminProductFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -160,6 +161,8 @@ export function AdminProductFilters({ brands, categories }: AdminProductFiltersP
           <Filter className="w-4 h-4" />
           Filters
         </button>
+
+        {children}
       </div>
 
       {showFilters && (

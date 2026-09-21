@@ -142,10 +142,10 @@ export function ImportJobProgress({ jobId }: ImportJobProgressProps) {
       value: `${job.processedFiles} / ${job.totalFiles}`,
       color: "text-text-primary",
     },
-    { label: "Products Detected", value: job.totalProducts, color: "text-text-primary" },
+    { label: "Products Detected", value: job.totalProducts - job.failedProducts, color: "text-text-primary" },
     { label: "Ready", value: job.readyProducts, color: "text-success" },
     { label: "Needs Review", value: job.needsReviewProducts, color: "text-warning" },
-    { label: "Failed", value: job.failedProducts, color: "text-error" },
+    { label: "Failed Products", value: job.failedProducts, color: "text-error" },
   ];
 
   return (

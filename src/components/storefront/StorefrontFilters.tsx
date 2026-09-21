@@ -20,9 +20,10 @@ interface StorefrontFiltersProps {
   categories: Category[];
   currentBrandId?: string;
   currentCategoryId?: string;
+  availableSizes?: string[];
 }
 
-export function StorefrontFilters({ brands, categories, currentBrandId, currentCategoryId }: StorefrontFiltersProps) {
+export function StorefrontFilters({ brands, categories, currentBrandId, currentCategoryId, availableSizes }: StorefrontFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -92,23 +93,34 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
       size !== currentSize
     ) {
       const timeout = setTimeout(() => {
-        // If they change the brand via query params (though no UI for it currently)
+        // If brand changed from what the page currently shows (e.g. on a Brand page)
         if (currentBrandId && brandId && brandId !== currentBrandId) {
             const selectedBrand = brands.find(b => b._id === brandId);
-            if (selectedBrand) {
+            if (selectedBrand && selectedBrand.slug) {
                 const params = new URLSearchParams();
                 if (categoryId) params.set("category", categoryId);
                 if (size) params.set("size", size);
                 if (minPrice) params.set("minPrice", minPrice);
                 if (maxPrice) params.set("maxPrice", maxPrice);
-                params.set("brand", brandId);
-                router.push(`/cycles/category/all?${params.toString()}`);
+                router.push(`/cycles/brand/${selectedBrand.slug}?${params.toString()}`);
                 return;
             }
         }
 
         // If category changed from what the page currently shows
         if (categoryId !== currentCategoryId) {
+            // If we are on a brand page, just update query params, don't change the route
+            if (pathname.startsWith('/cycles/brand/')) {
+              updateUrl({
+                brand: brandId,
+                category: categoryId,
+                size: size,
+                minPrice: minPrice,
+                maxPrice: maxPrice
+              });
+              return;
+            }
+
             const params = new URLSearchParams();
             if (brandId) params.set("brand", brandId);
             if (size) params.set("size", size);
@@ -180,17 +192,54 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
   };
 
   return (
-    <div className="w-full flex justify-start mb-2 animate-fade-in-up z-40 relative">
-      <div ref={dropdownRef} className="flex items-center flex-wrap gap-2 bg-surface border border-border rounded-full px-3 py-2 text-sm font-medium shadow-sm w-max max-w-full">
+    <div className="w-full flex justify-start mb-4 animate-fade-in-up z-40 relative">
+      <div ref={dropdownRef} className="flex items-center flex-wrap gap-2 w-full text-sm font-medium">
         
+        {/* Brand */}
+        <div className="relative">
+          <button 
+            onClick={() => setOpenDropdown(openDropdown === 'brand' ? null : 'brand')}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full border transition-all duration-200 ${
+              (brandId && brandId !== currentBrandId) || openDropdown === 'brand'
+                ? 'bg-accent border-accent text-bg font-bold shadow-sm' 
+                : 'bg-surface border-border hover:bg-surface-raised text-text-primary'
+            }`}
+          >
+            {brandId ? (brands.find(b => b._id === brandId)?.name || "Brand") : "Brand"}
+            {openDropdown === 'brand' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+          
+          {openDropdown === 'brand' && (
+            <div className="absolute top-full mt-2 left-0 min-w-[200px] w-max bg-surface-raised border border-border rounded-xl shadow-xl z-50 py-2 flex flex-col max-h-64 overflow-y-auto">
+               <button 
+                 onClick={() => { setBrandId(""); setOpenDropdown(null); }} 
+                 className={`text-left px-4 py-2 hover:bg-surface transition-colors ${!brandId ? 'text-accent font-bold' : 'text-text-primary'}`}
+               >
+                 All Brands
+               </button>
+               {brands.map(b => (
+                 <button 
+                   key={b._id} 
+                   onClick={() => { setBrandId(b._id); setOpenDropdown(null); }} 
+                   className={`text-left px-4 py-2 hover:bg-surface transition-colors ${brandId === b._id ? 'text-accent font-bold' : 'text-text-primary'}`}
+                 >
+                   {b.name}
+                 </button>
+               ))}
+            </div>
+          )}
+        </div>
+
+
+
         {/* Category */}
         <div className="relative">
           <button 
             onClick={() => setOpenDropdown(openDropdown === 'category' ? null : 'category')}
-            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full transition-all duration-200 ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full border transition-all duration-200 ${
               (categoryId && categoryId !== currentCategoryId) || openDropdown === 'category'
-                ? 'bg-accent text-bg font-bold shadow-sm' 
-                : 'hover:bg-surface-raised text-text-primary'
+                ? 'bg-accent border-accent text-bg font-bold shadow-sm' 
+                : 'bg-surface border-border hover:bg-surface-raised text-text-primary'
             }`}
           >
             {getCategoryLabel()}
@@ -218,16 +267,16 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
           )}
         </div>
 
-        <span className="text-text-muted/50 font-light select-none">/</span>
+
 
         {/* Size */}
         <div className="relative">
           <button 
             onClick={() => setOpenDropdown(openDropdown === 'size' ? null : 'size')}
-            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full transition-all duration-200 ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full border transition-all duration-200 ${
               size || openDropdown === 'size'
-                ? 'bg-accent text-bg font-bold shadow-sm' 
-                : 'hover:bg-surface-raised text-text-primary'
+                ? 'bg-accent border-accent text-bg font-bold shadow-sm' 
+                : 'bg-surface border-border hover:bg-surface-raised text-text-primary'
             }`}
           >
             {getSizeLabel()}
@@ -242,7 +291,7 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
                >
                  All Sizes
                </button>
-               {['12', '14', '16', '20', '24', '26', '27.5', '29', '700C'].map(s => (
+               {(availableSizes && availableSizes.length > 0 ? availableSizes : ['12', '14', '16', '20', '24', '26', '27.5', '29', '700C']).map(s => (
                  <button 
                    key={s} 
                    onClick={() => { setSize(s); setOpenDropdown(null); }} 
@@ -255,16 +304,16 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
           )}
         </div>
 
-        <span className="text-text-muted/50 font-light select-none">/</span>
+
 
         {/* Price Range */}
         <div className="relative">
           <button 
             onClick={() => setOpenDropdown(openDropdown === 'price' ? null : 'price')}
-            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full transition-all duration-200 ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full border transition-all duration-200 ${
               minPrice || maxPrice || openDropdown === 'price'
-                ? 'bg-accent text-bg font-bold shadow-sm' 
-                : 'hover:bg-surface-raised text-text-primary'
+                ? 'bg-accent border-accent text-bg font-bold shadow-sm' 
+                : 'bg-surface border-border hover:bg-surface-raised text-text-primary'
             }`}
           >
             {getPriceLabel()}

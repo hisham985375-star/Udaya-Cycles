@@ -23,6 +23,9 @@ import { ApproveConfirmModal } from "./ApproveConfirmModal";
 interface ImportProduct {
   _id: string;
   extractedName?: string;
+  extractedSku?: string;
+  isDuplicate?: boolean;
+  duplicateReason?: string;
   extractedBrand?: { _id: string; name: string } | null;
   extractedBrandRaw?: string;
   extractedCategory?: { _id: string; name: string } | null;
@@ -204,17 +207,18 @@ export function ImportProductsTable({
     fetchProducts();
   };
 
-  const handleApproveAll = async () => {
+  const handleImportSelected = async () => {
     setApproveLoading(true);
     try {
       const res = await fetch(`/api/admin/bulk-import/${jobId}/approve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ approveAll: true }),
+        body: JSON.stringify({ productIds: Array.from(selectedIds) }),
       });
       const data = await res.json();
       setApproveResult(data);
       fetchProducts();
+      setSelectedIds(new Set());
     } finally {
       setApproveLoading(false);
     }
@@ -246,13 +250,13 @@ export function ImportProductsTable({
           </div>
 
           <div className="flex items-center gap-3">
-            {readyCount > 0 && (
+            {selectedIds.size > 0 && (
               <button
                 onClick={() => setShowApproveModal(true)}
                 className="bg-accent text-bg font-bold px-5 py-2.5 rounded-full hover:bg-accent-dim transition-colors text-sm flex items-center gap-2 uppercase tracking-wide"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                Approve All Ready ({readyCount})
+                IMPORT SELECTED ({selectedIds.size})
               </button>
             )}
           </div>
@@ -294,6 +298,7 @@ export function ImportProductsTable({
                 </th>
                 <th className="p-4">Image</th>
                 <th className="p-4">Product Name</th>
+                <th className="p-4">SKU</th>
                 <th className="p-4">Brand</th>
                 <th className="p-4">Category</th>
                 <th className="p-4">Size</th>
@@ -384,6 +389,13 @@ export function ImportProductsTable({
                       </div>
                     </td>
 
+                    {/* SKU */}
+                    <td className="p-4">
+                      <span className="text-sm font-mono text-text-secondary">
+                        {product.extractedSku || <span className="text-text-muted italic">—</span>}
+                      </span>
+                    </td>
+
                     {/* Brand */}
                     <td className="p-4">
                       <div className="flex items-center gap-1.5">
@@ -429,6 +441,12 @@ export function ImportProductsTable({
                     {/* Status */}
                     <td className="p-4">
                       <StatusBadge status={product.status} />
+                      {product.isDuplicate && (
+                        <div className="flex items-center gap-1 mt-1 text-[10px] text-warning font-bold bg-warning/10 px-2 py-0.5 rounded inline-flex" title={product.duplicateReason}>
+                          <AlertTriangle className="w-3 h-3" />
+                          Existing product found
+                        </div>
+                      )}
                       {product.errorMessages && product.errorMessages.length > 0 && (
                         <div className="text-[10px] text-error mt-0.5 truncate max-w-[140px]" title={product.errorMessages.join("; ")}>
                           {product.errorMessages[0]}
@@ -524,9 +542,9 @@ export function ImportProductsTable({
       {/* Approve all modal */}
       {showApproveModal && (
         <ApproveConfirmModal
-          count={readyCount}
+          count={selectedIds.size}
           jobId={jobId}
-          onConfirm={handleApproveAll}
+          onConfirm={handleImportSelected}
           onClose={() => {
             setShowApproveModal(false);
             setApproveResult(null);

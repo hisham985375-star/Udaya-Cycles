@@ -113,16 +113,7 @@ export async function POST(
         }
 
         // ── Build images array ──────────────────────────
-        const images = [];
-        if (importProd.image?.cloudinaryUrl && importProd.image?.cloudinaryPublicId) {
-          images.push({
-            url: importProd.image.cloudinaryUrl,
-            publicId: importProd.image.cloudinaryPublicId,
-            alt: productName,
-            sortOrder: 0,
-            isDefault: true,
-          });
-        }
+        const images: any[] = [];
 
         // ── Create draft Product ──────────────────────────
         const newProduct = new Product({

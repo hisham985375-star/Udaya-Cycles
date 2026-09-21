@@ -8,9 +8,9 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-black pt-16 pb-8 border-t border-border">
+    <footer className="bg-black pt-12 md:pt-16 pb-8 border-t border-border">
       <div className="container-udaya">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16">
           {/* Brand Info */}
           <div>
             <Link href="/" className="inline-block mb-6">

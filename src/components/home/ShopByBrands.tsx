@@ -1,5 +1,6 @@
-import Link from "next/link";
-import Image from "next/image";
+import { connectDB } from "@/lib/db/mongoose";
+import BrandModel from "@/models/Brand";
+import { ShopByBrandsClient } from "./ShopByBrandsClient";
 interface Brand {
   id: string;
   bgImage: string;
@@ -100,58 +101,54 @@ const staticBrands: Brand[] = [
     href: "/cycles/brand/suncross",
     fillLogo: true,
     bgWhite: true,
+  },
+  {
+    id: "kross",
+    bgImage: "", // No specific background image, will fallback to grey bg with logo
+    logo: "/pictures/kross-logo.jpg",
+    label: "Kross",
+    href: "/cycles/brand/kross",
+    fillLogo: true,
+    bgWhite: true,
+  },
+  {
+    id: "british-eagle",
+    bgImage: "",
+    logo: "/pictures/british-eagle-logo.jpg",
+    label: "British Eagle",
+    href: "/cycles/brand/british-eagle",
+    fillLogo: true,
+    bgWhite: true,
   }
 ];
 
-export function ShopByBrands() {
-  return (
-    <section className="py-20 bg-black">
-      <div className="container-udaya">
-        <h2 className="text-3xl md:text-4xl font-normal text-accent mb-12">
-          Cycles by Brand
-        </h2>
+export async function ShopByBrands() {
+  await connectDB();
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8">
-          {staticBrands.map((brand) => {
-            return (
-              <Link 
-                href={brand.href}
-                key={brand.id}
-                className="group flex flex-col items-center"
-              >
-                {/* Image Box */}
-                <div className="w-full aspect-square bg-[#1a1a1a] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden relative mb-6 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                  {/* Background Image */}
-                  <Image 
-                    src={brand.bgImage}
-                    alt={brand.label}
-                    fill
-                    className="object-cover opacity-60 mix-blend-overlay group-hover:opacity-80 transition-opacity"
-                  />
-                  
-                  {/* Logo overlay */}
-                  <div className={`absolute inset-0 flex items-center justify-center ${brand.fillLogo ? '' : 'p-6'} ${brand.bgWhite ? 'bg-white' : ''}`}>
-                    <div className={`relative ${brand.fillLogo ? 'w-full h-full' : 'w-3/4 h-24'}`}>
-                      <Image
-                        src={brand.logo}
-                        alt={`${brand.id} logo`}
-                        fill
-                        className={brand.fillLogo ? (brand.bgWhite ? 'object-contain p-4' : 'object-cover') : 'object-contain'}
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Title & Arrow */}
-                <div className="flex items-center gap-2 text-accent group-hover:text-accent-dim transition-colors">
-                  <span className="text-sm md:text-base font-normal">{brand.label}</span>
-                  <span className="text-lg leading-none">→</span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
+  // Fetch all active brands from DB (excluding 'udaya' brand from this section)
+  const dbBrands = await BrandModel.find({ isActive: true, slug: { $ne: 'udaya' } }).sort({ name: 1 }).lean();
+
+  if (!dbBrands || dbBrands.length === 0) return null;
+
+  // Merge DB brands with static config for rich visuals
+  const allBrands = dbBrands.map((dbBrand: any) => {
+    // Find static config by matching name or slug
+    const staticConfig = staticBrands.find(
+      (sb) => sb.id.toLowerCase() === dbBrand.slug.toLowerCase() || 
+              sb.label.toLowerCase() === dbBrand.name.toLowerCase() ||
+              (sb.id === "sk" && dbBrand.slug === "gang") // Special case for Gang
+    );
+
+    return {
+      id: dbBrand.slug,
+      label: dbBrand.name,
+      href: `/cycles/brand/${dbBrand.slug}`,
+      bgImage: staticConfig?.bgImage || null,
+      logo: staticConfig?.logo || dbBrand.logo?.url || null,
+      fillLogo: staticConfig?.fillLogo || false,
+      bgWhite: staticConfig?.bgWhite || false,
+    };
+  });
+
+  return <ShopByBrandsClient brands={allBrands} />;
 }

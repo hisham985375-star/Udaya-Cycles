@@ -71,14 +71,20 @@ export default async function BrandPage({
   }
 
   // Fetch reference data and products
-  const [brands, categories, products] = await Promise.all([
-    Brand.find({ isActive: true }).select("_id name").sort({ name: 1 }).lean(),
-    Category.find({ isActive: true }).select("_id name").sort({ name: 1 }).lean(),
+  const [brands, allCategories, products, distinctCategories, distinctSizes] = await Promise.all([
+    Brand.find({ isActive: true }).select("_id name slug").sort({ name: 1 }).lean(),
+    Category.find({ isActive: true }).select("_id name slug").sort({ name: 1 }).lean(),
     Product.find(filter)
       .populate("category", "name")
       .sort({ createdAt: -1 })
-      .lean()
+      .lean(),
+    Product.distinct("category", { brand: brand._id, isActive: true, deletedAt: null }),
+    Product.distinct("size", { brand: brand._id, isActive: true, deletedAt: null })
   ]);
+
+  const availableCategoryIds = distinctCategories.map(id => id?.toString());
+  const categories = allCategories.filter(c => availableCategoryIds.includes(c._id.toString()));
+  const sizes = distinctSizes.filter(Boolean).map(String).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
   return (
     <div className="section-padding bg-bg">
@@ -96,9 +102,10 @@ export default async function BrandPage({
 
         <div className="mb-8">
           <StorefrontFilters 
-            brands={brands.map(b => ({ _id: b._id.toString(), name: b.name }))}
-            categories={categories.map(c => ({ _id: c._id.toString(), name: c.name }))}
+            brands={brands.map(b => ({ _id: b._id.toString(), name: b.name, slug: b.slug }))}
+            categories={categories.map(c => ({ _id: c._id.toString(), name: c.name, slug: c.slug }))}
             currentBrandId={brand._id.toString()}
+            availableSizes={sizes}
           />
         </div>
 

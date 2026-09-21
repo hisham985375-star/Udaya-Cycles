@@ -93,7 +93,7 @@ export function ImportHistoryTable({ jobs }: ImportHistoryTableProps) {
                   </span>
                 </td>
 
-                <td className="p-4 text-sm text-text-secondary">
+                <td className="p-4 text-sm text-text-secondary" suppressHydrationWarning>
                   {formatDistanceToNow(new Date(job.createdAt), { addSuffix: true })}
                 </td>
 

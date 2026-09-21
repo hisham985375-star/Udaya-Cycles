@@ -7,7 +7,8 @@ import Link from "next/link";
 import { Plus, Edit, Trash2, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { AdminProductFilters } from "@/components/admin/AdminProductFilters";
-import { DeleteProductButton } from "@/components/admin/DeleteProductButton";
+import { AdminProductRow } from "@/components/admin/AdminProductRow";
+import { BulkDeleteButton } from "@/components/admin/BulkDeleteButton";
 export const dynamic = "force-dynamic";
 
 export default async function AdminProductsPage({
@@ -90,11 +91,15 @@ export default async function AdminProductsPage({
               <AdminProductFilters 
                 brands={brands.map(b => ({ _id: b._id.toString(), name: b.name }))} 
                 categories={categories.map(c => ({ _id: c._id.toString(), name: c.name }))} 
-              />
+              >
+                <BulkDeleteButton count={total} />
+              </AdminProductFilters>
             </div>
           </div>
-          <div className="text-sm font-medium text-text-secondary self-start sm:self-end mt-2 sm:mt-0">
-            Showing {products.length} of {total} products
+          <div className="flex items-center gap-4 self-start mt-2 sm:mt-0">
+            <span className="text-sm font-medium text-text-secondary">
+              Showing {products.length} of {total} products
+            </span>
           </div>
         </div>
 
@@ -121,58 +126,10 @@ export default async function AdminProductsPage({
                 </tr>
               ) : (
                 products.map((product: any) => (
-                  <tr key={product._id.toString()} className="hover:bg-surface/50 transition-colors group">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-md bg-bg border border-border overflow-hidden relative flex-shrink-0 flex items-center justify-center">
-                          {product.images && product.images.length > 0 ? (
-                            <Image src={product.images[0].url} alt={product.name} fill className="object-cover" />
-                          ) : (
-                            <ImageIcon className="w-5 h-5 text-text-muted" />
-                          )}
-                        </div>
-                        <div>
-                          <div className="font-bold text-text-primary line-clamp-1">{product.name}</div>
-                          <div className="text-xs text-text-muted font-mono">{product.sku}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4 text-sm text-text-secondary font-medium">
-                      {product.brand?.name || "—"}
-                    </td>
-                    <td className="p-4 text-sm text-text-secondary font-medium">
-                      {product.category?.name || "—"}
-                    </td>
-                    <td className="p-4 text-sm text-text-secondary font-medium">
-                      {product.size || "—"}
-                    </td>
-                    <td className="p-4">
-                      <div className="font-mono font-bold text-text-primary">
-                        ₹{((product.regularPrice || 0) / 100).toLocaleString('en-IN')}
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${
-                        product.isActive 
-                          ? "bg-green-500/10 text-green-500 border border-green-500/20" 
-                          : "bg-text-muted/10 text-text-muted border border-border"
-                      }`}>
-                        {product.isActive ? "Active" : "Draft"}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link 
-                          href={`/admin/products/${product.slug}`}
-                          className="p-2 text-text-secondary hover:text-accent bg-bg rounded-md border border-transparent hover:border-border transition-colors"
-                          title="Edit"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Link>
-                        <DeleteProductButton productId={product._id.toString()} />
-                      </div>
-                    </td>
-                  </tr>
+                  <AdminProductRow 
+                    key={product._id.toString()} 
+                    product={JSON.parse(JSON.stringify(product))} 
+                  />
                 ))
               )}
             </tbody>

@@ -9,15 +9,10 @@ export type ImportProductStatus =
   | "REJECTED";
 
 export interface IImportProductImage {
-  originalPath?: string;      // local path of extracted/rendered image
-  processedPath?: string;     // local path of background-removed PNG
-  cloudinaryPublicId?: string;
-  cloudinaryUrl?: string;
+  originalPath?: string;      // local path of extracted image
   width?: number;
   height?: number;
   fileSize?: number;
-  extractionMethod?: "embedded" | "rendered"; // how the image was obtained
-  qualityIssues?: string[];   // e.g. ["possible_crop", "low_resolution"]
 }
 
 export interface IImportProduct extends Document {
@@ -36,7 +31,13 @@ export interface IImportProduct extends Document {
   extractedDescription?: string;
   extractedRegularPrice?: number; // in paise
   extractedSalePrice?: number;    // in paise
+  extractedStockQuantity?: number;
   extractedSpecifications?: { label: string; value: string }[];
+  
+  // Duplicates
+  isDuplicate: boolean;
+  duplicateOfProductId?: mongoose.Types.ObjectId;
+  duplicateReason?: string;
 
   // Confidence scores (0–100)
   nameConfidence: number;
@@ -70,14 +71,9 @@ export interface IImportProduct extends Document {
 const ImportProductImageSchema = new Schema<IImportProductImage>(
   {
     originalPath: { type: String },
-    processedPath: { type: String },
-    cloudinaryPublicId: { type: String },
-    cloudinaryUrl: { type: String },
     width: { type: Number },
     height: { type: Number },
     fileSize: { type: Number },
-    extractionMethod: { type: String, enum: ["embedded", "rendered"] },
-    qualityIssues: [{ type: String }],
   },
   { _id: false }
 );
@@ -98,6 +94,7 @@ const ImportProductSchema = new Schema<IImportProduct>(
     extractedDescription: { type: String },
     extractedRegularPrice: { type: Number },
     extractedSalePrice: { type: Number },
+    extractedStockQuantity: { type: Number },
     extractedSpecifications: [
       {
         label: { type: String },
@@ -105,6 +102,10 @@ const ImportProductSchema = new Schema<IImportProduct>(
         _id: false,
       },
     ],
+    
+    isDuplicate: { type: Boolean, default: false },
+    duplicateOfProductId: { type: Schema.Types.ObjectId, ref: "Product" },
+    duplicateReason: { type: String },
 
     nameConfidence: { type: Number, default: 0, min: 0, max: 100 },
     brandConfidence: { type: Number, default: 0, min: 0, max: 100 },

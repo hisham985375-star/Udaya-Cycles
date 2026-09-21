@@ -1,123 +1,213 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, Navigation } from "lucide-react";
+import dynamic from "next/dynamic";
+import { Search, MapPin, Phone, Star } from "lucide-react";
 
-export function StoreLocatorClient({ stores }: { stores: any[] }) {
-  const [activeStore, setActiveStore] = useState(stores[0] || null);
+// Dynamically import the map component with SSR disabled
+const StoreMap = dynamic(() => import("./StoreMap"), { 
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full min-h-[400px] md:min-h-[600px] rounded-2xl bg-surface border border-border flex items-center justify-center">
+      <div className="text-text-muted animate-pulse font-mono tracking-widest uppercase">Loading Map...</div>
+    </div>
+  )
+});
+
+interface Store {
+  id: number;
+  name: string;
+  address: string;
+  phone?: string;
+  lat: number;
+  lng: number;
+  isPrimary?: boolean;
+}
+
+const STORES: Store[] = [
+  {
+    id: 1,
+    name: "Udaya Cycles",
+    address: "Kuruppath, Kondotty Bypass Rd, Kondotty, Keralam 673638",
+    phone: "09961321144",
+    lat: 11.1457203,
+    lng: 75.9643753,
+    isPrimary: true,
+  },
+  {
+    id: 2,
+    name: "Udaya Cycles Chelari",
+    address: "Panakkad, Chelari, Moonniyur, Kerala 676317",
+    phone: "80892 23394",
+    lat: 11.1117844,
+    lng: 75.8900722
+  },
+  {
+    id: 3,
+    name: "UDAYA CYCLES PACE",
+    address: "53R7+MQ3, Kavanur, Kerala 673639",
+    lat: 11.1968101,
+    lng: 76.0714901
+  },
+  {
+    id: 4,
+    name: "Udaya Cycle Traders",
+    address: "Vengara - Chankuvetti Rd, Vettuthodu, Vengara, Kerala 676304",
+    phone: "9847886655",
+    lat: 11.0515646,
+    lng: 75.9857052
+  },
+  {
+    id: 5,
+    name: "Udaya Cycle Bazar",
+    address: "X6F7+XMQ, Pallippuram, Angadipuram, Kerala 679322",
+    lat: 10.9771438,
+    lng: 76.2017172
+  },
+  {
+    id: 6,
+    name: "UDAYA CYCLE MARKET",
+    address: "Kallingal - Manjachola Rd, Puthanathani, Kerala 676551",
+    phone: "8156987595",
+    lat: 10.9379100,
+    lng: 76.0046211
+  },
+  {
+    id: 7,
+    name: "Udaya cycles & toys - Muvattupuzha",
+    address: "S Valavu, Pezhakkappilly, Muvattupuzha, Kerala 686673",
+    phone: "8891022959",
+    lat: 10.0198565,
+    lng: 76.5616964
+  },
+  {
+    id: 8,
+    name: "Udaya Cycle",
+    address: "Near fousiya crane service, Nedumthode, Perumbavoor, Marampally, pallikavala 683547",
+    phone: "8891022959",
+    lat: 10.1147548,
+    lng: 76.4778152
+  },
+  {
+    id: 9,
+    name: "Udaya cycle riders",
+    address: "Udaya cycle State Highway 73, Oravampuram, Pandikkad, Kerala 676521",
+    phone: "9447383645",
+    lat: 11.1187490,
+    lng: 76.2307744
+  },
+  {
+    id: 10,
+    name: "Udaya cycle mart",
+    address: "4XW8+96C, Thangals Rd, Kondotty, Kerala 673638",
+    phone: "04832712554",
+    lat: 11.1457203,
+    lng: 75.9643753
+  },
+  {
+    id: 11,
+    name: "Udaya cycle",
+    address: "A17, Kozhikode - Palakkad Hwy, Poovannur Palli, Ramanattukara, Kozhikode, Kerala 673633",
+    phone: "9847116583",
+    lat: 11.1780876,
+    lng: 75.8656196
+  },
+  {
+    id: 12,
+    name: "UDAYA cycle Bright",
+    address: "W4RX+F58, Kolathur - Malappuram Rd, Kolathur, Kerala 679338",
+    lat: 10.9414444,
+    lng: 76.1389612
+  }
+];
+
+export function StoreLocatorClient() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+
+  const filteredStores = STORES.filter(store => 
+    store.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    store.address.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 min-h-[70vh]">
+    <div className="flex flex-col lg:flex-row gap-8 pb-20">
       
-      {/* Sidebar List */}
-      <div className="space-y-6 lg:h-[70vh] lg:overflow-y-auto pr-4 custom-scrollbar">
-        <h1 className="text-3xl font-display font-bold text-text-primary uppercase tracking-tight">Our Stores</h1>
-        <p className="text-text-secondary text-sm">Find an official Udaya Cycles retailer near you.</p>
+      {/* Left Column: Store List */}
+      <div className="w-full lg:w-1/3 flex flex-col gap-6">
+        
+        {/* Search Box */}
+        <div className="relative">
+          <input 
+            type="text" 
+            placeholder="Filter by title or description" 
+            className="w-full bg-surface border border-border rounded-xl px-4 py-3 pl-10 text-text-primary focus:outline-none focus:border-accent transition-colors font-mono"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+        </div>
 
-        <div className="space-y-4">
-          {stores.map((store) => (
-            <div 
-              key={store._id}
-              onClick={() => setActiveStore(store)}
-              className={`p-6 rounded-2xl border cursor-pointer transition-all ${
-                activeStore?._id === store._id 
-                  ? 'bg-surface-raised border-accent shadow-lg shadow-accent/5' 
-                  : 'bg-surface border-border hover:border-text-muted'
-              }`}
-            >
-              <h3 className="font-bold text-text-primary text-lg mb-2">{store.name}</h3>
-              <p className="text-sm text-text-secondary mb-4 line-clamp-2">{store.address}, {store.city}, {store.state} {store.pinCode}</p>
-              
-              <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-text-muted">
-                <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {store.city}</span>
-                {activeStore?._id === store._id && <span className="text-accent">Selected</span>}
+        {/* List of Stores */}
+        <div className="flex flex-col gap-4 overflow-y-auto max-h-[600px] custom-scrollbar pr-2">
+          {filteredStores.map(store => {
+            const isSelected = selectedStore?.id === store.id;
+            
+            return (
+              <div 
+                key={store.id}
+                onClick={() => setSelectedStore(store)}
+                className={`p-5 rounded-xl border-2 transition-all cursor-pointer ${
+                  isSelected 
+                    ? 'border-accent bg-accent/5' 
+                    : 'border-border bg-surface hover:border-text-muted'
+                }`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className={`font-bold text-lg ${isSelected ? 'text-accent' : 'text-text-primary'}`}>
+                    {store.name}
+                  </h3>
+                  {store.isPrimary && (
+                    <Star className="w-4 h-4 text-accent fill-accent" />
+                  )}
+                </div>
+                
+                <div className="flex items-start gap-2 text-text-secondary text-sm mb-3">
+                  <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
+                  <p className="leading-relaxed">{store.address}</p>
+                </div>
+                
+                {store.phone && (
+                  <div className="flex items-center gap-2 text-text-muted text-sm font-mono">
+                    <Phone className="w-4 h-4" />
+                    <span>{store.phone}</span>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
-
-          {stores.length === 0 && (
-            <div className="text-center p-8 text-text-muted border border-dashed border-border rounded-xl">
-              No store locations available at the moment.
+            );
+          })}
+          
+          {filteredStores.length === 0 && (
+            <div className="text-center py-8 text-text-muted">
+              No stores found matching your search.
             </div>
           )}
         </div>
+
+        {/* Global Action */}
+        <button 
+          onClick={() => setSelectedStore(null)}
+          className="mt-4 border-2 border-border text-text-secondary hover:text-text-primary hover:border-text-muted rounded-xl py-3 font-bold uppercase tracking-widest text-sm transition-colors"
+        >
+          View All on Map
+        </button>
       </div>
 
-      {/* Map and Detail View */}
-      <div className="lg:col-span-2 space-y-6">
-        {activeStore ? (
-          <>
-            <div className="w-full h-96 bg-surface-raised rounded-3xl border border-border overflow-hidden relative group">
-              {/* Fallback map using a free embed if coordinates exist, else address search */}
-              <iframe
-                width="100%"
-                height="100%"
-                frameBorder="0"
-                style={{ border: 0 }}
-                src={`https://maps.google.com/maps?q=${encodeURIComponent(activeStore.address + ", " + activeStore.city)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
-                allowFullScreen
-              ></iframe>
-            </div>
-
-            <div className="bg-surface-raised rounded-3xl border border-border p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div>
-                  <h2 className="text-2xl font-display font-bold text-text-primary">{activeStore.name}</h2>
-                  <p className="text-text-secondary mt-2">{activeStore.address}<br />{activeStore.city}, {activeStore.state} {activeStore.pinCode}</p>
-                </div>
-
-                <div className="space-y-3">
-                  <a href={`tel:${activeStore.phone}`} className="flex items-center gap-3 text-sm text-text-primary hover:text-accent transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center border border-border"><Phone className="w-4 h-4" /></div>
-                    {activeStore.phone}
-                  </a>
-                  {activeStore.email && (
-                    <a href={`mailto:${activeStore.email}`} className="flex items-center gap-3 text-sm text-text-primary hover:text-accent transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center border border-border"><Mail className="w-4 h-4" /></div>
-                      {activeStore.email}
-                    </a>
-                  )}
-                </div>
-
-                <a 
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(activeStore.address + ", " + activeStore.city)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 bg-text-primary text-bg font-bold px-6 py-3 rounded-full hover:bg-accent hover:text-bg transition-colors uppercase tracking-wide text-sm"
-                >
-                  <Navigation className="w-4 h-4" /> Get Directions
-                </a>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="flex items-center gap-2 font-bold uppercase tracking-widest text-text-muted text-xs border-b border-border pb-2">
-                  <Clock className="w-4 h-4" /> Opening Hours
-                </h3>
-                <ul className="space-y-3">
-                  {activeStore.hours?.map((h: any, i: number) => (
-                    <li key={i} className="flex items-center justify-between text-sm">
-                      <span className="text-text-secondary font-medium">{h.day}</span>
-                      {h.isClosed ? (
-                        <span className="text-error font-bold uppercase tracking-wider text-[10px]">Closed</span>
-                      ) : (
-                        <span className="text-text-primary font-mono">{h.open} - {h.close}</span>
-                      )}
-                    </li>
-                  ))}
-                  {(!activeStore.hours || activeStore.hours.length === 0) && (
-                    <li className="text-text-muted text-sm">Hours not specified.</li>
-                  )}
-                </ul>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="w-full h-full min-h-[500px] flex items-center justify-center bg-surface-raised rounded-3xl border border-dashed border-border text-text-muted">
-            Select a store from the list to view details
-          </div>
-        )}
+      {/* Right Column: Interactive Map */}
+      <div className="w-full lg:w-2/3 min-h-[400px] lg:min-h-0 relative">
+        <StoreMap stores={STORES} selectedStore={selectedStore} />
       </div>
-
+      
     </div>
   );
 }

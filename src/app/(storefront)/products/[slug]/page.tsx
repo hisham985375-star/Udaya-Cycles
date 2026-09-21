@@ -39,10 +39,26 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   const product = await Product.findOne({ slug, isActive: true, deletedAt: null })
     .populate("brand", "name")
+    .populate("category", "name")
     .lean();
 
   if (!product) {
     notFound();
+  }
+
+  // Fetch sibling products to aggregate all available sizes for this cycle model
+  const siblingProducts = await Product.find({
+    name: product.name,
+    isActive: true,
+    deletedAt: null
+  }).select("size").lean();
+
+  const uniqueSizes = Array.from(new Set(
+    siblingProducts.map(p => p.size).filter(Boolean)
+  ));
+
+  if (uniqueSizes.length > 0) {
+    product.size = uniqueSizes.join("/");
   }
 
   // Fetch variants if applicable
