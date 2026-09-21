@@ -36,6 +36,7 @@ export function FeaturedCategoriesClient({ categories }: { categories: any[] }) 
           {displayedCategories.map((category: any) => {
             let imageUrl = category.image?.url;
             
+            // Fallback to local static files only if DB has no CDN URL
             if (!imageUrl) {
               if (category.name.includes("MTB") || category.name.includes("Mountain")) {
                 imageUrl = "/pictures/mtb category img.png";
@@ -45,10 +46,14 @@ export function FeaturedCategoriesClient({ categories }: { categories: any[] }) 
                 imageUrl = "/pictures/girls category img 2.png";
               } else if (category.name.includes("Electric")) {
                 imageUrl = "/pictures/electric-category.png";
-              } else if (category.name.includes("City")) {
-                imageUrl = "/pictures/viva-bg.png"; // Fallback image for city
               } else if (category.name.includes("Hybrid")) {
                 imageUrl = "/pictures/hybrid-category.png";
+              } else if (category.name.includes("Roadster")) {
+                imageUrl = "/pictures/roadsters-category.png";
+              } else if (category.name.includes("Geared")) {
+                imageUrl = "/pictures/geared-category.png";
+              } else if (category.name.includes("Premium")) {
+                imageUrl = "/pictures/premium-category.webp";
               } else {
                 imageUrl = "/placeholder-bike.png";
               }
