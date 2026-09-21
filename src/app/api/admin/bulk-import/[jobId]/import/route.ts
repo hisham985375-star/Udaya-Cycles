@@ -3,14 +3,14 @@ import { connectDB } from "@/lib/db/mongoose";
 import ImportJob from "@/models/ImportJob";
 import ImportProduct from "@/models/ImportProduct";
 import Product from "@/models/Product";
-import { requireAdminAPI } from "@/lib/auth/admin";
+import { getAdminSession } from "@/lib/auth/admin-auth";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { jobId: string } }
 ) {
   try {
-    const adminUser = await requireAdminAPI();
+    const adminUser = await getAdminSession();
     if (!adminUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
