@@ -66,9 +66,19 @@ export async function POST(request: Request) {
     });
 
     if (paymentMethod === "razorpay") {
+      const keyId = process.env.RAZORPAY_KEY_ID;
+      const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+      if (!keyId || !keySecret) {
+        return NextResponse.json(
+          { error: "Razorpay credentials are not configured on the server" },
+          { status: 500 }
+        );
+      }
+
       const razorpay = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID || "",
-        key_secret: process.env.RAZORPAY_KEY_SECRET || "",
+        key_id: keyId,
+        key_secret: keySecret,
       });
 
       const options = {

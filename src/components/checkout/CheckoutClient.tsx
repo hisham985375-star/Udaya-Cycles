@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
 import { useCartStore } from "@/store/cartStore";
 import { CreditCard, Truck, ShieldCheck, UserCheck, LogIn } from "lucide-react";
 import Image from "next/image";
@@ -156,10 +157,18 @@ export function CheckoutClient() {
             const verifyData = await verifyRes.json();
             if (verifyRes.ok) {
               clearCart();
+              toast.success("Payment verified successfully!");
               router.push(`/checkout/success?orderNumber=${verifyData.orderNumber}`);
             } else {
-              alert("Payment verification failed. Please contact support.");
+              toast.error(verifyData.error || "Payment verification failed. Please contact support.");
+              setLoading(false);
             }
+          },
+          modal: {
+            ondismiss: function () {
+              setLoading(false);
+              toast.error("Payment cancelled by user");
+            },
           },
           prefill: {
             name: `${formData.firstName} ${formData.lastName}`,
@@ -173,13 +182,14 @@ export function CheckoutClient() {
 
         const rzp = new window.Razorpay(options);
         rzp.on("payment.failed", function (response: any) {
-          alert(`Payment Failed: ${response.error.description}`);
+          const desc = response?.error?.description || "Payment was declined or failed";
+          toast.error(`Payment Failed: ${desc}`);
           setLoading(false);
         });
         rzp.open();
       }
     } catch (error: any) {
-      alert(error.message);
+      toast.error(error.message || "Failed to initiate payment");
       setLoading(false);
     }
   };
