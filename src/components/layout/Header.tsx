@@ -32,99 +32,98 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-[200] w-full bg-black">
-      <div className="container-udaya">
-        <div className="flex items-center justify-between h-[80px]">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
+        <div className="flex items-center justify-between h-[80px] w-full">
           
-          {/* Logo & Desktop Navigation */}
-          <div className="flex items-center gap-10 lg:gap-14 h-full">
-            <Link href="/" className="flex items-center -ml-2 md:-ml-4 lg:-ml-8">
-              <Image 
-                src="/udaya-logo.svg" 
-                alt="Udaya Cycles Logo" 
-                width={140} 
-                height={50} 
-                className="w-auto h-12 md:h-14" 
-                priority
-              />
+          {/* 1. Brand Logo - Larger & prominent like reference */}
+          <Link href="/" className="flex items-center shrink-0 py-2">
+            <Image 
+              src="/udaya-logo.svg" 
+              alt="Udaya Cycles Logo" 
+              width={200} 
+              height={60} 
+              className="w-auto h-12 sm:h-14 md:h-[54px] lg:h-[60px] max-h-[64px] object-contain transition-transform hover:scale-[1.02]" 
+              priority
+            />
+          </Link>
+
+          {/* 2. Desktop Navigation */}
+          <nav className="hidden lg:flex items-center h-full gap-2.5 xl:gap-4 2xl:gap-6 text-accent text-[12.5px] xl:text-[13.5px] 2xl:text-[14.5px] font-normal tracking-wide whitespace-nowrap mx-4 xl:mx-8">
+            <Link href="/" className="whitespace-nowrap hover:opacity-80 transition-opacity">
+              Home
             </Link>
 
-            <nav className="hidden lg:flex items-center h-full gap-4 xl:gap-6 2xl:gap-7 text-accent text-[13.5px] xl:text-[14.5px] 2xl:text-[15px] font-normal tracking-wide whitespace-nowrap">
-              <Link href="/" className="whitespace-nowrap hover:opacity-80 transition-opacity">
-                Home
-              </Link>
-
-              <div className="relative group h-full flex items-center">
-                <button className="flex items-center gap-1.5 whitespace-nowrap transition-all group-hover:border-b group-hover:border-accent pb-[2px] h-[24px]">
-                  <span>Cycles by Category</span>
-                  <ChevronDown className="w-3.5 h-3.5 group-hover:hidden shrink-0" />
-                  <ChevronUp className="w-3.5 h-3.5 hidden group-hover:block shrink-0" />
-                </button>
-                
-                <div className="absolute top-full left-0 hidden group-hover:block z-[100]">
-                  <div className="bg-black flex flex-col py-1.5 w-[190px] shadow-2xl border border-[#1a1a18] border-t-0">
-                    <Link href="/cycles/category/mtb-bicycles" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">MTB Cycles</Link>
-                    <Link href="/cycles/category/electric-cycles" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Electric Cycles</Link>
-                    <Link href="/cycles/category/kids-3322" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Kids</Link>
-                    <Link href="/cycles/category/ladies-3473" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Ladies</Link>
-                    <Link href="/cycles/category/premium-6058" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Premium</Link>
-                    <Link href="/cycles/category/mountain-3145" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Mountain</Link>
-                    <Link href="/cycles/category/city-3298" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">City</Link>
-                    <Link href="/cycles/category/roadster-3083" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Roadster</Link>
-                    <Link href="/cycles/category/geared-8852" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Geared</Link>
-                    <Link href="/cycles/category/hybrid-2496" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Hybrid</Link>
-                  </div>
+            <div className="relative group h-full flex items-center">
+              <button className="flex items-center gap-1 whitespace-nowrap transition-all group-hover:border-b group-hover:border-accent pb-[2px] h-[24px]">
+                <span>Cycles by Category</span>
+                <ChevronDown className="w-3.5 h-3.5 group-hover:hidden shrink-0" />
+                <ChevronUp className="w-3.5 h-3.5 hidden group-hover:block shrink-0" />
+              </button>
+              
+              <div className="absolute top-full left-0 hidden group-hover:block z-[100]">
+                <div className="bg-black flex flex-col py-1.5 w-[190px] shadow-2xl border border-[#1a1a18] border-t-0">
+                  <Link href="/cycles/category/mtb-bicycles" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">MTB Cycles</Link>
+                  <Link href="/cycles/category/electric-cycles" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Electric Cycles</Link>
+                  <Link href="/cycles/category/kids-3322" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Kids</Link>
+                  <Link href="/cycles/category/ladies-3473" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Ladies</Link>
+                  <Link href="/cycles/category/premium-6058" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Premium</Link>
+                  <Link href="/cycles/category/mountain-3145" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Mountain</Link>
+                  <Link href="/cycles/category/city-3298" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">City</Link>
+                  <Link href="/cycles/category/roadster-3083" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Roadster</Link>
+                  <Link href="/cycles/category/geared-8852" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Geared</Link>
+                  <Link href="/cycles/category/hybrid-2496" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Hybrid</Link>
                 </div>
               </div>
+            </div>
 
-              <div className="relative group h-full flex items-center">
-                <button className="flex items-center gap-1.5 whitespace-nowrap transition-all group-hover:border-b group-hover:border-accent pb-[2px] h-[24px]">
-                  <span>Cycles by Brand</span>
-                  <ChevronDown className="w-3.5 h-3.5 group-hover:hidden shrink-0" />
-                  <ChevronUp className="w-3.5 h-3.5 hidden group-hover:block shrink-0" />
-                </button>
-                
-                <div className="absolute top-full left-0 hidden group-hover:block z-[100]">
-                  <div className="bg-black flex flex-col py-1.5 w-[190px] shadow-2xl border border-[#1a1a18] border-t-0">
-                    <Link href="/cycles/brand/radiant" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Radiant</Link>
-                    <Link href="/cycles/brand/avon" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Avon</Link>
-                    <Link href="/cycles/brand/gang" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Gang</Link>
-                    <Link href="/cycles/brand/chase" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Chase</Link>
-                    <Link href="/cycles/brand/viva" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Viva</Link>
-                    <Link href="/cycles/brand/firefox" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Firefox</Link>
-                    <Link href="/cycles/brand/emotorad" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Emotorad</Link>
-                    <Link href="/cycles/brand/ninety-one" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Ninety one</Link>
-                    <Link href="/cycles/brand/raliegh" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Raliegh</Link>
-                    <Link href="/cycles/brand/suncross" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Suncross</Link>
-                    <Link href="/cycles/brand/kross" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Kross</Link>
-                    <Link href="/cycles/brand/british-eagle" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">British Eagle</Link>
-                  </div>
+            <div className="relative group h-full flex items-center">
+              <button className="flex items-center gap-1 whitespace-nowrap transition-all group-hover:border-b group-hover:border-accent pb-[2px] h-[24px]">
+                <span>Cycles by Brand</span>
+                <ChevronDown className="w-3.5 h-3.5 group-hover:hidden shrink-0" />
+                <ChevronUp className="w-3.5 h-3.5 hidden group-hover:block shrink-0" />
+              </button>
+              
+              <div className="absolute top-full left-0 hidden group-hover:block z-[100]">
+                <div className="bg-black flex flex-col py-1.5 w-[190px] shadow-2xl border border-[#1a1a18] border-t-0">
+                  <Link href="/cycles/brand/radiant" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Radiant</Link>
+                  <Link href="/cycles/brand/avon" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Avon</Link>
+                  <Link href="/cycles/brand/gang" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Gang</Link>
+                  <Link href="/cycles/brand/chase" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Chase</Link>
+                  <Link href="/cycles/brand/viva" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Viva</Link>
+                  <Link href="/cycles/brand/firefox" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Firefox</Link>
+                  <Link href="/cycles/brand/emotorad" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Emotorad</Link>
+                  <Link href="/cycles/brand/ninety-one" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Ninety one</Link>
+                  <Link href="/cycles/brand/raliegh" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Raliegh</Link>
+                  <Link href="/cycles/brand/suncross" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Suncross</Link>
+                  <Link href="/cycles/brand/kross" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">Kross</Link>
+                  <Link href="/cycles/brand/british-eagle" className="px-5 py-2.5 hover:bg-[#1a1a18] transition-colors text-[14px]">British Eagle</Link>
                 </div>
               </div>
+            </div>
 
-              <Link href="/accessories" className="whitespace-nowrap hover:opacity-80 transition-opacity">
-                Accessories
-              </Link>
+            <Link href="/accessories" className="whitespace-nowrap hover:opacity-80 transition-opacity">
+              Accessories
+            </Link>
 
-              <Link href="/contact" className="whitespace-nowrap hover:opacity-80 transition-opacity">
-                Contact
-              </Link>
+            <Link href="/contact" className="whitespace-nowrap hover:opacity-80 transition-opacity">
+              Contact
+            </Link>
 
-              <Link href="/store-locator" className="whitespace-nowrap hover:opacity-80 transition-opacity">
-                Store Locator
-              </Link>
+            <Link href="/store-locator" className="whitespace-nowrap hover:opacity-80 transition-opacity">
+              Store Locator
+            </Link>
 
-              <Link href="/account" className="whitespace-nowrap hover:opacity-80 transition-opacity">
-                My Orders
-              </Link>
+            <Link href="/account" className="whitespace-nowrap hover:opacity-80 transition-opacity">
+              My Orders
+            </Link>
 
-              <Link href="/track-order" className="whitespace-nowrap hover:opacity-80 transition-opacity">
-                Track Order
-              </Link>
-            </nav>
-          </div>
+            <Link href="/track-order" className="whitespace-nowrap hover:opacity-80 transition-opacity">
+              Track Order
+            </Link>
+          </nav>
 
-          {/* Action Icons */}
-          <div className="hidden md:flex items-center gap-6 text-accent">
+          {/* 3. Action Icons - Generous space separating Track Order from Search */}
+          <div className="hidden md:flex items-center gap-5 xl:gap-6 text-accent shrink-0 pl-6 lg:pl-10 xl:pl-14">
             <button onClick={() => toggleSearch(true)} aria-label="Search" className="hover:opacity-80 transition-opacity">
               <Search className="w-6 h-6" strokeWidth={1.5} />
             </button>
