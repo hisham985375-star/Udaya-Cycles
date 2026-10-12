@@ -98,7 +98,7 @@ export async function POST(request: Request) {
         orderId: newOrder._id,
         orderNumber: newOrder.orderNumber,
         razorpayOrderId: rzpOrder.id,
-        razorpayKeyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID,
+        razorpayKeyId: keyId,
         amount: total,
       });
     } else {

@@ -136,8 +136,15 @@ export function CheckoutClient() {
         router.push(`/checkout/success?orderNumber=${data.orderNumber}`);
       } else {
         // Razorpay flow
+        const razorpayKey =
+          data.razorpayKeyId && data.razorpayKeyId !== "rzp_test_your_key_id"
+            ? data.razorpayKeyId
+            : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID && process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID !== "rzp_test_your_key_id"
+              ? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+              : "rzp_test_TmtX7iMhpBVxM9";
+
         const options = {
-          key: data.razorpayKeyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+          key: razorpayKey,
           amount: data.amount,
           currency: "INR",
           name: "Udaya Cycles",

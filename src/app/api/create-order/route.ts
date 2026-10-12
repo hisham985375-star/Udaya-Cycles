@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       order_id: order.id,
       amount: order.amount,
       currency: order.currency,
-      key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || keyId,
+      key_id: keyId,
     });
   } catch (error: any) {
     console.error("[RAZORPAY_CREATE_ORDER_ERROR]", error);
