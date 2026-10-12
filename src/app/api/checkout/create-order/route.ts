@@ -121,7 +121,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("[CREATE_ORDER_ERROR]", error);
     if (error.statusCode === 401 || (error.error && error.error.code === "BAD_REQUEST_ERROR" && error.error.description?.includes("auth"))) {
-      return NextResponse.json({ error: "Authentication failed" }, { status: 401 });
+      return NextResponse.json({ error: "Razorpay gateway authentication failed. Please check your API Key ID and Secret in settings." }, { status: 401 });
     }
     return NextResponse.json({ error: error.message || "Failed to create order" }, { status: 500 });
   }
