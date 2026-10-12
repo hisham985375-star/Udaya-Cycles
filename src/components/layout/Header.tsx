@@ -48,20 +48,16 @@ export function Header() {
               />
             </Link>
 
-            <nav className="hidden md:flex items-center h-full gap-5 lg:gap-7 text-accent text-[14px] lg:text-[15px] font-normal tracking-wide">
-              <Link href="/" className="hover:opacity-80 transition-opacity text-center flex flex-col items-center justify-center leading-[1.15]">
-                <span>Home</span>
-                <span>Page</span>
+            <nav className="hidden lg:flex items-center h-full gap-4 xl:gap-6 2xl:gap-7 text-accent text-[13.5px] xl:text-[14.5px] 2xl:text-[15px] font-normal tracking-wide whitespace-nowrap">
+              <Link href="/" className="whitespace-nowrap hover:opacity-80 transition-opacity">
+                Home
               </Link>
 
               <div className="relative group h-full flex items-center">
-                <button className="flex items-center gap-1 transition-all group-hover:border-b group-hover:border-accent pb-[2px] text-center leading-[1.15]">
-                  <div className="flex flex-col items-center">
-                    <span>Cycles by</span>
-                    <span>Category</span>
-                  </div>
-                  <ChevronDown className="w-3.5 h-3.5 group-hover:hidden shrink-0 mt-1" />
-                  <ChevronUp className="w-3.5 h-3.5 hidden group-hover:block shrink-0 mt-1" />
+                <button className="flex items-center gap-1.5 whitespace-nowrap transition-all group-hover:border-b group-hover:border-accent pb-[2px] h-[24px]">
+                  <span>Cycles by Category</span>
+                  <ChevronDown className="w-3.5 h-3.5 group-hover:hidden shrink-0" />
+                  <ChevronUp className="w-3.5 h-3.5 hidden group-hover:block shrink-0" />
                 </button>
                 
                 <div className="absolute top-full left-0 hidden group-hover:block z-[100]">
@@ -81,13 +77,10 @@ export function Header() {
               </div>
 
               <div className="relative group h-full flex items-center">
-                <button className="flex items-center gap-1 transition-all group-hover:border-b group-hover:border-accent pb-[2px] text-center leading-[1.15]">
-                  <div className="flex flex-col items-center">
-                    <span>Cycles by</span>
-                    <span>Brand</span>
-                  </div>
-                  <ChevronDown className="w-3.5 h-3.5 group-hover:hidden shrink-0 mt-1" />
-                  <ChevronUp className="w-3.5 h-3.5 hidden group-hover:block shrink-0 mt-1" />
+                <button className="flex items-center gap-1.5 whitespace-nowrap transition-all group-hover:border-b group-hover:border-accent pb-[2px] h-[24px]">
+                  <span>Cycles by Brand</span>
+                  <ChevronDown className="w-3.5 h-3.5 group-hover:hidden shrink-0" />
+                  <ChevronUp className="w-3.5 h-3.5 hidden group-hover:block shrink-0" />
                 </button>
                 
                 <div className="absolute top-full left-0 hidden group-hover:block z-[100]">
@@ -108,29 +101,24 @@ export function Header() {
                 </div>
               </div>
 
-              <Link href="/accessories" className="hover:opacity-80 transition-opacity text-center flex flex-col items-center justify-center leading-[1.15]">
-                <span>Cycle</span>
-                <span>Accessories</span>
+              <Link href="/accessories" className="whitespace-nowrap hover:opacity-80 transition-opacity">
+                Accessories
               </Link>
 
-              <Link href="/contact" className="hover:opacity-80 transition-opacity text-center flex flex-col items-center justify-center leading-[1.15]">
-                <span>Contact</span>
-                <span>Us</span>
+              <Link href="/contact" className="whitespace-nowrap hover:opacity-80 transition-opacity">
+                Contact
               </Link>
 
-              <Link href="/store-locator" className="hover:opacity-80 transition-opacity text-center flex flex-col items-center justify-center leading-[1.15]">
-                <span>Store</span>
-                <span>Locator</span>
+              <Link href="/store-locator" className="whitespace-nowrap hover:opacity-80 transition-opacity">
+                Store Locator
               </Link>
 
-              <Link href="/account" className="hover:opacity-80 transition-opacity text-center flex flex-col items-center justify-center leading-[1.15]">
-                <span>My</span>
-                <span>Orders</span>
+              <Link href="/account" className="whitespace-nowrap hover:opacity-80 transition-opacity">
+                My Orders
               </Link>
 
-              <Link href="/track-order" className="hover:opacity-80 transition-opacity text-center flex flex-col items-center justify-center leading-[1.15]">
-                <span>Track</span>
-                <span>Order</span>
+              <Link href="/track-order" className="whitespace-nowrap hover:opacity-80 transition-opacity">
+                Track Order
               </Link>
             </nav>
           </div>
@@ -241,10 +229,10 @@ export function Header() {
               )}
             </div>
             <Link href="/accessories" className="text-lg font-normal p-2 hover:bg-surface rounded-md transition-colors" onClick={toggleMobileMenu}>
-              Cycle Accessories
+              Accessories
             </Link>
             <Link href="/contact" className="text-lg font-normal p-2 hover:bg-surface rounded-md transition-colors" onClick={toggleMobileMenu}>
-              Contact Us
+              Contact
             </Link>
             <Link href="/store-locator" className="text-lg font-normal p-2 hover:bg-surface rounded-md transition-colors" onClick={toggleMobileMenu}>
               Store Locator
