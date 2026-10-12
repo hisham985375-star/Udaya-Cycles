@@ -49,6 +49,8 @@ export function Footer() {
           <div>
             <h4 className="text-lg font-bold text-accent mb-6">Support</h4>
             <ul className="space-y-3">
+              <li><Link href="/track-order" className="text-sm text-accent hover:opacity-80 transition-opacity">Track Order</Link></li>
+              <li><Link href="/account" className="text-sm text-accent hover:opacity-80 transition-opacity">My Orders</Link></li>
               <li><Link href="/faq" className="text-sm text-accent hover:opacity-80 transition-opacity">FAQ</Link></li>
               <li><Link href="/contact" className="text-sm text-accent hover:opacity-80 transition-opacity">Contact Us</Link></li>
               <li><Link href="/store-locator" className="text-sm text-accent hover:opacity-80 transition-opacity">Store Locator</Link></li>

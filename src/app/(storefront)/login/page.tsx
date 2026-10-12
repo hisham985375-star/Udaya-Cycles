@@ -9,7 +9,7 @@ import { toast } from "react-hot-toast";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = (searchParams && searchParams.get("callbackUrl")) || "/";
+  const callbackUrl = (searchParams && searchParams.get("callbackUrl")) || "/account";
 
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({

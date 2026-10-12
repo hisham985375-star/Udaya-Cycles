@@ -358,3 +358,20 @@
     animation: spin 0.7s linear infinite;
   }
 }
+
+/* Custom Leaflet Tooltip for Live Tracking */
+.leaflet-tooltip.tracking-hub-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.leaflet-tooltip.tracking-hub-tooltip::before {
+  display: none !important;
+}
+
+.leaflet-container {
+  font-family: inherit !important;
+}
+

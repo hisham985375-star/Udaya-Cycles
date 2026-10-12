@@ -38,7 +38,7 @@ function SuccessContent() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/account/orders"
+            href={orderNumber ? `/track-order?orderId=${encodeURIComponent(orderNumber)}` : "/track-order"}
             className="h-14 px-8 flex items-center justify-center gap-2 bg-surface-raised border-2 border-border text-text-primary font-bold uppercase tracking-wide rounded-full hover:border-text-primary transition-colors"
           >
             <Package className="w-5 h-5" /> Track Order

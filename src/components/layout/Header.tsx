@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, Search, ShoppingBag, ChevronDown, ChevronUp } from "lucide-react";
+import { Menu, X, Search, ShoppingBag, ChevronDown, ChevronUp, User } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useUiStore } from "@/store/uiStore";
 
@@ -110,6 +110,9 @@ export function Header() {
             <Link href="/store-locator" className="hover:opacity-80 transition-opacity">
               Store Locator
             </Link>
+            <Link href="/track-order" className="hover:opacity-80 transition-opacity">
+              Track Order
+            </Link>
             </nav>
           </div>
 
@@ -118,6 +121,10 @@ export function Header() {
             <button onClick={() => toggleSearch(true)} aria-label="Search" className="hover:opacity-80 transition-opacity">
               <Search className="w-6 h-6" strokeWidth={1.5} />
             </button>
+
+            <Link href="/account" aria-label="My Account & Orders" className="hover:opacity-80 transition-opacity">
+              <User className="w-6 h-6" strokeWidth={1.5} />
+            </Link>
 
             <button 
               onClick={() => toggleCart(true)} 
@@ -138,6 +145,9 @@ export function Header() {
               <button onClick={() => toggleSearch(true)} aria-label="Search">
                 <Search className="w-5 h-5" strokeWidth={1.5} />
               </button>
+              <Link href="/account" aria-label="Account">
+                <User className="w-5 h-5" strokeWidth={1.5} />
+              </Link>
               <button onClick={() => toggleCart(true)} aria-label="Cart" className="relative">
                 <ShoppingBag className="w-5 h-5" strokeWidth={1.5} />
                 {cartCount > 0 && (
@@ -222,6 +232,12 @@ export function Header() {
             </Link>
             <Link href="/store-locator" className="text-lg font-normal p-2 hover:bg-surface rounded-md transition-colors" onClick={toggleMobileMenu}>
               Store Locator
+            </Link>
+            <Link href="/account" className="text-lg font-normal p-2 hover:bg-surface rounded-md transition-colors text-accent font-semibold" onClick={toggleMobileMenu}>
+              My Orders & Account
+            </Link>
+            <Link href="/track-order" className="text-lg font-normal p-2 hover:bg-surface rounded-md transition-colors text-accent font-semibold" onClick={toggleMobileMenu}>
+              Track Order
             </Link>
           </div>
         </div>
