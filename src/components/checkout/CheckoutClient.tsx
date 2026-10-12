@@ -141,7 +141,7 @@ export function CheckoutClient() {
             ? data.razorpayKeyId
             : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID && process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID !== "rzp_test_your_key_id"
               ? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
-              : "rzp_test_TmtX7iMhpBVxM9";
+              : "rzp_test_TiUk4hlTWrrm1y";
 
         const options = {
           key: razorpayKey,
