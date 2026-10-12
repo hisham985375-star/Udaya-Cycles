@@ -44,3 +44,17 @@ export const getContactFormEmail = (name: string, email: string, phone: string, 
   <p style="white-space: pre-wrap;">${message}</p>
 </div>
 `;
+
+export const getPasswordResetEmail = (resetUrl: string) => `
+<div style="font-family: Arial, sans-serif; max-w-2xl mx-auto p-4 text-[#282827]">
+  <h1 style="color: #282827;">Reset Your Password</h1>
+  <p>We received a request to reset your password for your Udaya Cycles account.</p>
+  <p>Click the link below to set a new password. This link will expire in 1 hour.</p>
+  <br />
+  <a href="\${resetUrl}" style="display: inline-block; background-color: #efff40; color: #282827; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 4px;">Reset Password</a>
+  <br /><br />
+  <p>If you didn't request a password reset, you can safely ignore this email.</p>
+  <p>Best regards,</p>
+  <p><strong>Udaya Cycles Team</strong></p>
+</div>
+`;

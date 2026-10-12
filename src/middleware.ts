@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 // Routes that require customer authentication (NextAuth session cookie)
-const CUSTOMER_PROTECTED = ["/checkout", "/wishlist", "/account"];
+const CUSTOMER_PROTECTED = ["/wishlist", "/account"];
 
 // Routes that require admin authentication
 const ADMIN_ROUTES = ["/admin"];
@@ -60,8 +60,10 @@ export async function middleware(request: NextRequest) {
 
   // ── Customer protected routes (using NextAuth session cookie) ─────────────
   if (CUSTOMER_PROTECTED.some((route) => pathname.startsWith(route))) {
-    // Check for NextAuth session token (works on edge)
+    // Check for NextAuth v5 (authjs) or v4 session token (works on edge)
     const sessionToken =
+      request.cookies.get("authjs.session-token")?.value ||
+      request.cookies.get("__Secure-authjs.session-token")?.value ||
       request.cookies.get("next-auth.session-token")?.value ||
       request.cookies.get("__Secure-next-auth.session-token")?.value;
 
@@ -79,7 +81,6 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/api/admin/:path*",
-    "/checkout/:path*",
     "/wishlist/:path*",
     "/account/:path*",
   ],

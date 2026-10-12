@@ -7,7 +7,7 @@ import { Suspense } from "react";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
-  const orderNumber = searchParams.get("orderNumber");
+  const orderNumber = searchParams ? searchParams.get("orderNumber") : null;
 
   return (
     <div className="section-padding bg-bg min-h-[80vh] flex items-center justify-center">

@@ -1,10 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useCartStore } from "@/store/cartStore";
-import { CreditCard, Truck, ShieldCheck } from "lucide-react";
+import { CreditCard, Truck, ShieldCheck, UserCheck, LogIn } from "lucide-react";
 import Image from "next/image";
 
 declare global {
@@ -15,6 +16,7 @@ declare global {
 
 export function CheckoutClient() {
   const router = useRouter();
+  const { data: session } = useSession();
   const { items, getSubtotal, clearCart } = useCartStore();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -42,6 +44,23 @@ export function CheckoutClient() {
     script.async = true;
     document.body.appendChild(script);
   }, []);
+
+  // Pre-fill user data if authenticated
+  useEffect(() => {
+    if (session?.user) {
+      const nameParts = (session.user.name || "").trim().split(" ");
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || "";
+      const email = session.user.email || "";
+
+      setFormData(prev => ({
+        ...prev,
+        firstName: prev.firstName || firstName,
+        lastName: prev.lastName || lastName,
+        email: prev.email || email,
+      }));
+    }
+  }, [session]);
 
   if (!mounted) return null;
 
@@ -117,7 +136,7 @@ export function CheckoutClient() {
       } else {
         // Razorpay flow
         const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Use public key here
+          key: data.razorpayKeyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
           amount: data.amount,
           currency: "INR",
           name: "Udaya Cycles",
@@ -171,6 +190,34 @@ export function CheckoutClient() {
       <div className="lg:w-2/3">
         <form onSubmit={handleCheckout} className="space-y-10">
           
+          {/* Account Banner */}
+          {session?.user ? (
+            <div className="p-4 rounded-xl border border-border bg-surface flex items-center justify-between text-sm">
+              <div className="flex items-center gap-3">
+                <UserCheck className="w-5 h-5 text-accent" />
+                <span className="text-text-secondary">
+                  Logged in as <strong className="text-text-primary">{session.user.email}</strong>
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 rounded-xl border border-border bg-surface flex items-center justify-between text-sm">
+              <div className="flex items-center gap-3">
+                <LogIn className="w-5 h-5 text-accent" />
+                <span className="text-text-secondary">
+                  Already have an account?{" "}
+                  <Link
+                    href="/login?callbackUrl=/checkout"
+                    className="text-accent font-semibold hover:underline"
+                  >
+                    Log in for faster checkout
+                  </Link>
+                </span>
+              </div>
+              <span className="text-xs text-text-muted hidden sm:inline">Guest checkout supported</span>
+            </div>
+          )}
+
           {/* Customer Info */}
           <section>
             <h2 className="text-xl font-bold uppercase tracking-wide mb-6">Contact Information</h2>

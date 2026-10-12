@@ -55,7 +55,8 @@ export default function RegisterPage() {
       });
 
       if (!loginRes?.error) {
-        router.push("/account");
+        const callbackUrl = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("callbackUrl") || "/" : "/";
+        router.push(callbackUrl);
         router.refresh();
       } else {
         router.push("/login");

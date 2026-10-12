@@ -23,6 +23,10 @@ export async function POST(request: Request) {
 
     const total = subtotal + shippingFee - discount;
 
+    if (total < 100) {
+      return NextResponse.json({ error: "Minimum amount is 100 paise" }, { status: 400 });
+    }
+
     // Generate Order Number
     const timestamp = Date.now().toString().slice(-6);
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
@@ -31,7 +35,7 @@ export async function POST(request: Request) {
     // Create pending order in DB
     const newOrder = await Order.create({
       orderNumber,
-      user: session?.user?.id || null, // Allow null for guests for now, though schema requires it. Wait! Schema requires user.
+      user: session?.user?.id || undefined,
       customerDetails: {
         firstName: customerDetails.firstName,
         lastName: customerDetails.lastName,
@@ -84,6 +88,7 @@ export async function POST(request: Request) {
         orderId: newOrder._id,
         orderNumber: newOrder.orderNumber,
         razorpayOrderId: rzpOrder.id,
+        razorpayKeyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID,
         amount: total,
       });
     } else {
@@ -105,6 +110,9 @@ export async function POST(request: Request) {
 
   } catch (error: any) {
     console.error("[CREATE_ORDER_ERROR]", error);
+    if (error.statusCode === 401 || (error.error && error.error.code === "BAD_REQUEST_ERROR" && error.error.description?.includes("auth"))) {
+      return NextResponse.json({ error: "Authentication failed" }, { status: 401 });
+    }
     return NextResponse.json({ error: error.message || "Failed to create order" }, { status: 500 });
   }
 }
