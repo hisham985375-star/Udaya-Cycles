@@ -24,7 +24,7 @@ export default function CartPage() {
   }
 
   const subtotal = getSubtotal();
-  const estimatedShipping = subtotal > 5000000 ? 0 : 50000; // Rs 50,000 threshold, Rs 500 shipping (in paise)
+  const estimatedShipping = 0; // Free shipping
   const total = subtotal + estimatedShipping;
 
   if (items.length === 0) {

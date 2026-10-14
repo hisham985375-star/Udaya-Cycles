@@ -83,8 +83,8 @@ const HomepageSettingsSchema = new Schema<IHomepageSettings>(
       secondaryCtaUrl: { type: String, default: "/store-locator" },
     },
     sitewide: {
-      freeShippingThreshold: { type: Number, default: 5000000 }, // ₹50,000 in paise
-      standardShippingFee: { type: Number, default: 50000 },     // ₹500 in paise
+      freeShippingThreshold: { type: Number, default: 0 }, // ₹0
+      standardShippingFee: { type: Number, default: 0 },     // ₹0
       freeShippingEnabled: { type: Boolean, default: true },
       maintenanceMode: { type: Boolean, default: false },
     },

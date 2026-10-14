@@ -77,7 +77,7 @@ export function CheckoutClient() {
   }
 
   const subtotal = getSubtotal();
-  const shippingFee = subtotal > 5000000 ? 0 : 50000;
+  const shippingFee = 0;
   const total = subtotal + shippingFee;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -317,9 +317,13 @@ export function CheckoutClient() {
               <span>Subtotal</span>
               <span className="font-mono font-medium text-text-primary">₹{(subtotal / 100).toLocaleString('en-IN')}</span>
             </div>
-            <div className="flex justify-between text-text-secondary">
+            <div className="flex justify-between items-center text-text-secondary">
               <span>Shipping</span>
-              <span className="font-mono font-medium text-text-primary">₹{(shippingFee / 100).toLocaleString('en-IN')}</span>
+              {shippingFee === 0 ? (
+                <span className="font-bold text-accent uppercase tracking-wider text-xs">Free</span>
+              ) : (
+                <span className="font-mono font-medium text-text-primary">₹{(shippingFee / 100).toLocaleString('en-IN')}</span>
+              )}
             </div>
           </div>
 
