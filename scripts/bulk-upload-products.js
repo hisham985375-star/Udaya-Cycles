@@ -244,6 +244,11 @@ async function main() {
     for (const key of Object.keys(BRAND_CONFIGS)) {
       await processBrand(key, isDryRun);
     }
+  } else if (targetBrandArg === 'rest') {
+    const remaining = ['british eagle', 'kross', 'gang'];
+    for (const key of remaining) {
+      await processBrand(key, isDryRun);
+    }
   } else {
     await processBrand(targetBrandArg, isDryRun);
   }
