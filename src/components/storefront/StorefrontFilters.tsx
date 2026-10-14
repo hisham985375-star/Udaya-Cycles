@@ -4,6 +4,16 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { X, ChevronDown, ChevronUp } from "lucide-react";
 
+const AGE_GROUPS = [
+  { label: "2–3 years",          wheelSize: "12"               },
+  { label: "3–5 years",          wheelSize: "14"               },
+  { label: "4–6 years",          wheelSize: "16"               },
+  { label: "5–8 years",          wheelSize: "20"               },
+  { label: "7–10 years",         wheelSize: "24"               },
+  { label: "10+ years / Teens",  wheelSize: "26"               },
+  { label: "Adults",             wheelSize: "27.5,28,29"       },
+] as const;
+
 interface Brand {
   _id: string;
   name: string;
@@ -33,6 +43,7 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
   const [size, setSize] = useState(searchParams.get("size") || "");
+  const [ageGroup, setAgeGroup] = useState(searchParams.get("ageGroup") || "");
 
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -54,6 +65,7 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
     setMinPrice(searchParams.get("minPrice") || "");
     setMaxPrice(searchParams.get("maxPrice") || "");
     setSize(searchParams.get("size") || "");
+    setAgeGroup(searchParams.get("ageGroup") || "");
   }, [searchParams, currentBrandId, currentCategoryId]);
 
   const updateUrl = (newParams: Record<string, string>) => {
@@ -84,13 +96,15 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
     const currentMin = searchParams.get("minPrice") || "";
     const currentMax = searchParams.get("maxPrice") || "";
     const currentSize = searchParams.get("size") || "";
+    const currentAgeGroup = searchParams.get("ageGroup") || "";
 
     if (
       brandId !== currentBrand ||
       categoryId !== currentCategory ||
       minPrice !== currentMin ||
       maxPrice !== currentMax ||
-      size !== currentSize
+      size !== currentSize ||
+      ageGroup !== currentAgeGroup
     ) {
       const timeout = setTimeout(() => {
         // If brand changed from what the page currently shows (e.g. on a Brand page)
@@ -100,6 +114,7 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
                 const params = new URLSearchParams();
                 if (categoryId) params.set("category", categoryId);
                 if (size) params.set("size", size);
+                if (ageGroup) params.set("ageGroup", ageGroup);
                 if (minPrice) params.set("minPrice", minPrice);
                 if (maxPrice) params.set("maxPrice", maxPrice);
                 router.push(`/cycles/brand/${selectedBrand.slug}?${params.toString()}`);
@@ -115,6 +130,7 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
                 brand: brandId,
                 category: categoryId,
                 size: size,
+                ageGroup: ageGroup,
                 minPrice: minPrice,
                 maxPrice: maxPrice
               });
@@ -124,6 +140,7 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
             const params = new URLSearchParams();
             if (brandId) params.set("brand", brandId);
             if (size) params.set("size", size);
+            if (ageGroup) params.set("ageGroup", ageGroup);
             if (minPrice) params.set("minPrice", minPrice);
             if (maxPrice) params.set("maxPrice", maxPrice);
             
@@ -144,6 +161,7 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
           brand: brandId,
           // category param is no longer needed since it's part of the path, but we can keep it if needed.
           size: size,
+          ageGroup: ageGroup,
           minPrice: minPrice,
           maxPrice: maxPrice
         });
@@ -151,12 +169,13 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
       return () => clearTimeout(timeout);
     }
     return undefined;
-  }, [brandId, categoryId, size, minPrice, maxPrice, searchParams, currentBrandId, currentCategoryId, router]);
+  }, [brandId, categoryId, size, ageGroup, minPrice, maxPrice, searchParams, currentBrandId, currentCategoryId, router]);
 
   const clearFilters = () => {
     setBrandId(currentBrandId || "");
     setCategoryId(currentCategoryId || "");
     setSize("");
+    setAgeGroup("");
     setMinPrice("");
     setMaxPrice("");
     
@@ -164,6 +183,7 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
       brand: "",
       category: "",
       size: "",
+      ageGroup: "",
       minPrice: "",
       maxPrice: ""
     });
@@ -171,7 +191,7 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
 
   const hasActiveFilters = (brandId && brandId !== currentBrandId) || 
                            (categoryId && categoryId !== currentCategoryId) || 
-                           size || minPrice || maxPrice;
+                           size || ageGroup || minPrice || maxPrice;
 
 
   const getCategoryLabel = () => {
@@ -183,6 +203,12 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
   };
 
   const getSizeLabel = () => size || "Size";
+
+  const getAgeGroupLabel = () => {
+    if (!ageGroup) return "Age Group";
+    const found = AGE_GROUPS.find(a => a.wheelSize === ageGroup);
+    return found ? found.label : "Age Group";
+  };
 
   const getPriceLabel = () => {
     if (minPrice && maxPrice) return `₹${minPrice} - ₹${maxPrice}`;
@@ -291,15 +317,64 @@ export function StorefrontFilters({ brands, categories, currentBrandId, currentC
                >
                  All Sizes
                </button>
-               {(availableSizes && availableSizes.length > 0 ? availableSizes : ['12', '14', '16', '20', '24', '26', '27.5', '29', '700C']).map(s => (
+               {Array.from(new Set(availableSizes && availableSizes.length > 0 ? availableSizes : ['12', '14', '16', '20', '24', '26', '27.5', '29', '700C'])).map(s => (
                  <button 
-                   key={s} 
+                   key={`size-${s}`}
                    onClick={() => { setSize(s); setOpenDropdown(null); }} 
                    className={`text-left px-4 py-2 hover:bg-surface transition-colors ${size === s ? 'text-accent font-bold' : 'text-text-primary'}`}
                  >
                    {s}
                  </button>
                ))}
+            </div>
+          )}
+        </div>
+
+
+
+        {/* Age Group */}
+        <div className="relative">
+          <button 
+            onClick={() => setOpenDropdown(openDropdown === 'age' ? null : 'age')}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full border transition-all duration-200 ${
+              ageGroup || openDropdown === 'age'
+                ? 'bg-accent border-accent text-bg font-bold shadow-sm' 
+                : 'bg-surface border-border hover:bg-surface-raised text-text-primary'
+            }`}
+          >
+            {getAgeGroupLabel()}
+            {openDropdown === 'age' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+          
+          {openDropdown === 'age' && (
+            <div className="absolute top-full mt-2 left-0 min-w-[200px] w-max bg-surface-raised border border-border rounded-xl shadow-xl z-50 py-2 flex flex-col">
+              <div className="px-4 py-1.5 mb-1 border-b border-border">
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Rider Age → Wheel Size</p>
+              </div>
+              <button 
+                onClick={() => { setAgeGroup(""); setOpenDropdown(null); }} 
+                className={`text-left px-4 py-2 hover:bg-surface transition-colors ${!ageGroup ? 'text-accent font-bold' : 'text-text-primary'}`}
+              >
+                All Ages
+              </button>
+              {AGE_GROUPS.map(ag => (
+                <button 
+                  key={ag.wheelSize} 
+                  onClick={() => { setAgeGroup(ag.wheelSize); setSize(""); setOpenDropdown(null); }} 
+                  className={`text-left px-4 py-2 hover:bg-surface transition-colors flex items-center justify-between gap-6 ${
+                    ageGroup === ag.wheelSize ? 'text-accent font-bold' : 'text-text-primary'
+                  }`}
+                >
+                  <span>{ag.label}</span>
+                  <span className={`text-xs font-mono px-2 py-0.5 rounded-full ${
+                    ageGroup === ag.wheelSize 
+                      ? 'bg-accent/20 text-accent' 
+                      : 'bg-surface text-text-muted'
+                  }`}>
+                    {ag.wheelSize.includes(',') ? ag.wheelSize.split(',').join(' / ') + '"' : ag.wheelSize + '"'}
+                  </span>
+                </button>
+              ))}
             </div>
           )}
         </div>

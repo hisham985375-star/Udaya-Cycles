@@ -10,6 +10,7 @@ import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { FAQSection } from "@/components/home/FAQSection";
 import { PromotionalClosingSection } from "@/components/home/PromotionalClosingSection";
 import { HighlightsSection } from "@/components/home/HighlightsSection";
+import { AgeFilterSection } from "@/components/home/AgeFilterSection";
 import { connectDB } from "@/lib/db/mongoose";
 import HomepageSettings from "@/models/HomepageSettings";
 
@@ -28,6 +29,7 @@ export default async function HomePage() {
       {isVisible("hero") && <HeroSection />}
       {isVisible("new_arrivals") && <NewArrivalsSection />}
       {isVisible("featured") && <FeaturedProductsSection />}
+      <AgeFilterSection />
       {isVisible("categories") && <FeaturedCategories />}
       {isVisible("brands") && <ShopByBrands />}
       {isVisible("why_udaya") && <WhyUdayaSection />}

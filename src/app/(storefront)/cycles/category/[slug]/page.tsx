@@ -62,6 +62,7 @@ export default async function CategoryPage({
 
   const brandId = resolvedParams.brand || "";
   const size = resolvedParams.size || "";
+  const ageGroup = resolvedParams.ageGroup || "";
   const minPrice = resolvedParams.minPrice ? parseInt(resolvedParams.minPrice as string) * 100 : undefined;
   const maxPrice = resolvedParams.maxPrice ? parseInt(resolvedParams.maxPrice as string) * 100 : undefined;
 
@@ -75,7 +76,12 @@ export default async function CategoryPage({
   }
 
   if (brandId) filter.brand = brandId;
-  if (size) filter.size = size;
+  if (ageGroup) {
+    const sizes = (ageGroup as string).split(',').map((s: string) => s.trim()).filter(Boolean);
+    filter.size = sizes.length === 1 ? sizes[0] : { $in: sizes };
+  } else if (size) {
+    filter.size = size;
+  }
   if (minPrice !== undefined || maxPrice !== undefined) {
     filter.regularPrice = {};
     if (minPrice !== undefined) filter.regularPrice.$gte = minPrice;
