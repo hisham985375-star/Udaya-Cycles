@@ -139,21 +139,33 @@ export default async function AdminProductsPage({
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="p-4 border-t border-border bg-surface flex items-center justify-center gap-2">
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <Link
-                key={i}
-                href={`/admin/products?page=${i + 1}${query ? `&q=${query}` : ''}`}
-                className={`w-10 h-10 flex items-center justify-center rounded-lg border font-mono font-bold transition-colors ${
-                  page === i + 1 
-                    ? "bg-accent text-bg border-accent" 
-                    : "bg-bg text-text-secondary border-border hover:border-accent hover:text-accent"
-                }`}
-              >
-                {i + 1}
-              </Link>
-            ))}
+            {Array.from({ length: totalPages }).map((_, i) => {
+              const params = new URLSearchParams();
+              params.set("page", String(i + 1));
+              if (query)      params.set("q",        query);
+              if (brandId)    params.set("brand",    brandId);
+              if (categoryId) params.set("category", categoryId);
+              if (size)       params.set("size",     size);
+              if (resolvedParams.minPrice) params.set("minPrice", resolvedParams.minPrice);
+              if (resolvedParams.maxPrice) params.set("maxPrice", resolvedParams.maxPrice);
+
+              return (
+                <Link
+                  key={i}
+                  href={`/admin/products?${params.toString()}`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-lg border font-mono font-bold transition-colors ${
+                    page === i + 1
+                      ? "bg-accent text-bg border-accent"
+                      : "bg-bg text-text-secondary border-border hover:border-accent hover:text-accent"
+                  }`}
+                >
+                  {i + 1}
+                </Link>
+              );
+            })}
           </div>
         )}
+
       </div>
     </div>
   );
