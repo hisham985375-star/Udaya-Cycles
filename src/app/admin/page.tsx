@@ -6,6 +6,7 @@ import Product from "@/models/Product";
 import ProductVariant from "@/models/ProductVariant";
 import Link from "next/link";
 import { ShoppingCart, ArrowRight } from "lucide-react";
+import SalesAnalytics, { IDayData, ITopProduct } from "@/components/admin/SalesAnalytics";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export default async function AdminDashboardPage() {
 
   // 2. Orders Stats
   const totalOrders = await Order.countDocuments();
-  const pendingOrders = await Order.countDocuments({ status: { $in: ["payment_confirmed", "processing"] } });
+  const pendingOrders = await Order.countDocuments({ status: { $in: ["payment_confirmed", "processing", "payment_pending"] } });
 
   // 3. Customers Stats
   const totalCustomers = await User.countDocuments();
@@ -39,6 +40,91 @@ export default async function AdminDashboardPage() {
     .limit(5)
     .populate("user", "firstName lastName")
     .lean();
+
+  // 6. Detailed Sales Analytics Aggregation
+  const allOrdersList = await Order.find()
+    .sort({ createdAt: 1 })
+    .select("total status paymentStatus items createdAt")
+    .lean();
+
+  const dailyMap: Record<string, IDayData> = {};
+  const productMap: Record<string, ITopProduct> = {};
+  let totalGross = 0;
+  let totalPaid = 0;
+  let paidOrdersCount = 0;
+
+  // Build the past 7 days timeline so the chart is natural and continuous
+  const now = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const dateKey = d.toISOString().split("T")[0] || "";
+    dailyMap[dateKey] = {
+      date: dateKey,
+      label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      fullDate: d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }),
+      allRevenue: 0,
+      paidRevenue: 0,
+      allOrders: 0,
+      paidOrders: 0,
+    };
+  }
+
+  // Populate data from orders
+  allOrdersList.forEach((order: any) => {
+    const d = new Date(order.createdAt);
+    const dateKey = d.toISOString().split("T")[0] || "";
+    const totalRupees = (order.total || 0) / 100;
+    const isPaid = order.paymentStatus === "paid";
+
+    totalGross += totalRupees;
+    if (isPaid) {
+      totalPaid += totalRupees;
+      paidOrdersCount++;
+    }
+
+    if (!dailyMap[dateKey]) {
+      dailyMap[dateKey] = {
+        date: dateKey,
+        label: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        fullDate: d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }),
+        allRevenue: 0,
+        paidRevenue: 0,
+        allOrders: 0,
+        paidOrders: 0,
+      };
+    }
+
+    const currentDay = dailyMap[dateKey];
+    if (currentDay) {
+      currentDay.allRevenue += totalRupees;
+      currentDay.allOrders += 1;
+      if (isPaid) {
+        currentDay.paidRevenue += totalRupees;
+        currentDay.paidOrders += 1;
+      }
+    }
+
+    (order.items || []).forEach((it: any) => {
+      const name = it.productSnapshot?.name || "Cycle";
+      const qty = it.quantity || 1;
+      const rev = (it.totalPrice || 0) / 100;
+      if (!productMap[name]) productMap[name] = { name, quantity: 0, revenue: 0 };
+      productMap[name].quantity += qty;
+      productMap[name].revenue += rev;
+    });
+  });
+
+  const initialDailyData = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
+  const topProducts = Object.values(productMap).sort((a, b) => b.quantity - a.quantity).slice(0, 4);
+
+  const kpis = {
+    totalGross,
+    totalPaid,
+    totalOrders,
+    paidOrdersCount,
+    avgOrderValue: totalOrders > 0 ? totalGross / totalOrders : 0,
+  };
 
   return (
     <div>
@@ -81,15 +167,12 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-surface-raised rounded-2xl border border-border shadow-sm h-96 p-6 flex flex-col">
-          <h3 className="text-lg font-bold text-text-primary mb-4 uppercase tracking-wide">Sales Analytics</h3>
-          <div className="flex-1 w-full bg-surface rounded-xl border border-border flex items-center justify-center text-text-muted">
-            {/* TODO: Add Chart.js or Recharts here later */}
-            <div className="text-center">
-              <span className="block text-sm uppercase tracking-widest font-bold mb-2">No Chart Data Available</span>
-              <span className="text-xs">Sales analytics will appear here as orders grow.</span>
-            </div>
-          </div>
+        <div className="lg:col-span-2">
+          <SalesAnalytics
+            initialDailyData={initialDailyData}
+            topProducts={topProducts}
+            kpis={kpis}
+          />
         </div>
         
         <div className="bg-surface-raised rounded-2xl border border-border shadow-sm p-6 flex flex-col">
